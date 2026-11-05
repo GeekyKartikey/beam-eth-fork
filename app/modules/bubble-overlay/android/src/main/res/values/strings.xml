@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- User-visible strings for the bubble-overlay module. The product name is Beam. -->
+<resources>
+  <string name="screen_reader_label">Beam screen reader</string>
+  <string name="screen_reader_description">Reads the text on your screen only at the moment you tap the beam, so the agent can see what you\'re looking at. Nothing is read in the background.</string>
+  <string name="bubble_channel_name">Beam</string>
+  <string name="bubble_notification_title">Beam is ready</string>
+  <string name="bubble_notification_stop">Stop</string>
+  <string name="bubble_content_description">Open Beam</string>
+  <string name="bubble_stopped_toast">Beam stopped. Open the app to start it again.</string>
+</resources>

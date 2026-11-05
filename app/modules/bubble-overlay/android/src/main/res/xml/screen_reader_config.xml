@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Accessibility service config for ScreenReaderService.
+  Window content is read only inside captureNow() on an beam tap; events
+  are subscribed minimally and ignored.
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+  android:accessibilityEventTypes="typeWindowStateChanged"
+  android:accessibilityFeedbackType="feedbackGeneric"
+  android:accessibilityFlags="flagRetrieveInteractiveWindows|flagIncludeNotImportantViews"
+  android:canRetrieveWindowContent="true"
+  android:notificationTimeout="100"
+  android:description="@string/screen_reader_description" />

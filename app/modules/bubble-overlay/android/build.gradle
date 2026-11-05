@@ -1,0 +1,23 @@
+// Build script for the local `bubble-overlay` Expo module (Android only).
+// SDK versions, Kotlin and the expo-modules-core dependency are applied by
+// `expo-module-gradle-plugin`, as in the Expo packages under node_modules.
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'expo.modules.bubbleoverlay'
+version = '1.0.0'
+
+android {
+  namespace "expo.modules.bubbleoverlay"
+  defaultConfig {
+    versionCode 1
+    versionName '1.0.0'
+  }
+}
+
+dependencies {
+  // ServiceCompat.startForeground(service, id, notification, type) needs core 1.12+.
+  implementation "androidx.core:core-ktx:1.13.1"
+}

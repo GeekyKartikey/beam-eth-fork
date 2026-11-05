@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Beam glyph for the overlay disc: a white ring with a solid dot riding its path
+  at the upper right, the ring knocked out around the dot with a small gap.
+  Drawn on the 24-unit Beam grid (same path as assets/brand/beam-glyph.svg and
+  src/components/BrandMark.tsx); the ring is concentric with the viewport so it
+  sits dead-centre in the round disc. Fills the ImageView's content box;
+  BubbleService's GLYPH_PADDING_DP sizes it inside the 56dp disc.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+  android:width="24dp"
+  android:height="24dp"
+  android:viewportWidth="24"
+  android:viewportHeight="24">
+  <path
+    android:fillColor="#FFFFFFFF"
+    android:fillType="evenOdd"
+    android:pathData="M20.894 8.662A9.5 9.5 0 1 1 15.338 3.106A4 4 0 0 0 13.618 5.911A6.3 6.3 0 1 0 18.089 10.382A4 4 0 0 0 20.894 8.662ZM20.186 6.414A2.6 2.6 0 1 1 14.986 6.414A2.6 2.6 0 1 1 20.186 6.414Z" />
+</vector>

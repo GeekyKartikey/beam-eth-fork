@@ -1,0 +1,7 @@
+# Build output and caches.
+out/
+cache/
+# Dependencies are cloned at pinned tags; see README "Setup".
+lib/
+# Broadcast logs of local chains only (31337 = anvil); testnet deploy logs are kept.
+broadcast/*/31337/

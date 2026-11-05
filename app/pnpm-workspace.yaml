@@ -1,0 +1,14 @@
+packages:
+  - .
+
+# Expo SDK 53 autolinking expects a flat node_modules.
+nodeLinker: hoisted
+
+minimumReleaseAge: 10080
+
+# Install scripts: unrs-resolver powers eslint's import resolver. The others
+# are optional native Node addons for websockets, unused on React Native.
+allowBuilds:
+  unrs-resolver: true
+  bufferutil: false
+  utf-8-validate: false

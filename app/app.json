@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Beam",
+    "slug": "beam",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/images/icon.png",
+    "scheme": "bubbleagent",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FBFAF9"
+    },
+    "android": {
+      "package": "com.bubbleagent.app",
+      "edgeToEdgeEnabled": true,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#6E54FF"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35
+          }
+        }
+      ],
+      "expo-secure-store",
+      "expo-web-browser",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Confirm payments with Face ID."
+        }
+      ],
+      "./plugins/withTranslucentActivity"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "platforms": [
+      "android"
+    ]
+  }
+}
