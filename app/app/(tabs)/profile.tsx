@@ -3,7 +3,7 @@
  * spending limits (onchain cap and daily limit), security (World ID), network
  * (chain ID and BeamPay contract) and about sections, and Sign out with a confirm.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../../src/components/Icon';
 import { usePrivy } from '@privy-io/expo';
 import Constants from 'expo-constants';
 import type { ReactNode } from 'react';
@@ -13,7 +13,7 @@ import { HandleRow, WorldIdRow } from '../../src/components/IdentityRows';
 import { LimitsCard } from '../../src/components/LimitsCard';
 import { NetworkPill } from '../../src/components/NetworkPill';
 import { Screen } from '../../src/components/Screen';
-import { Card, ListRow, SectionHeader, Text, type IconName } from '../../src/components/ui';
+import { Card, ListRow, SectionHeader, Text, Toggle, type IconName } from '../../src/components/ui';
 import { useCopy } from '../../src/components/useCopy';
 import { config, NETWORK } from '../../src/config';
 import { shortAddress } from '../../src/intent';
@@ -21,6 +21,7 @@ import { addressUrl } from '../../src/network';
 import { worldOf } from '../../src/serverApi';
 import { colors, HIT, radius, space } from '../../src/theme';
 import { useWalletData } from '../../src/walletData';
+import { useReadAloud } from '../../src/voice';
 
 type Row = { icon: IconName; title: string; subtitle?: string; onPress?: () => void; value?: string; badge?: ReactNode };
 
@@ -55,7 +56,7 @@ function Group({ title, leading, rows }: { title: string; leading?: ReactNode; r
                   {row.value}
                 </Text>
               ) : row.onPress ? (
-                <Feather name="external-link" size={16} color={colors.textTertiary} />
+                <Icon name="external-link" size={16} color={colors.textTertiary} />
               ) : undefined)
             }
           />
@@ -75,6 +76,7 @@ export default function ProfileScreen() {
     useWalletData();
   const { beamPay } = config;
   const { copied, copy } = useCopy();
+  const [readAloud, setReadAloud] = useReadAloud();
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   const confirmSignOut = () =>
@@ -102,7 +104,7 @@ export default function ProfileScreen() {
               <Text variant="mono" color="textSecondary">
                 {copied ? 'Copied' : shortAddress(address)}
               </Text>
-              <Feather name={copied ? 'check' : 'copy'} size={14} color={copied ? colors.success : colors.textTertiary} />
+              <Icon name={copied ? 'check' : 'copy'} size={14} color={copied ? colors.success : colors.textTertiary} />
             </Pressable>
           ) : (
             <Text variant="caption" color="textSecondary">
@@ -166,6 +168,18 @@ export default function ProfileScreen() {
         ]}
       />
 
+      <View style={styles.group}>
+        <SectionHeader title="Preferences" />
+        <Card>
+          <ListRow
+            icon="volume-2"
+            title="Read aloud"
+            subtitle="Speak payments and safety verdicts"
+            trailing={<Toggle value={readAloud} onValueChange={setReadAloud} label="Read aloud" />}
+          />
+        </Card>
+      </View>
+
       <Group
         title="About"
         rows={[
@@ -180,7 +194,7 @@ export default function ProfileScreen() {
         onPress={confirmSignOut}
         style={({ pressed }) => [styles.signOut, pressed && styles.signOutPressed]}
       >
-        <Feather name="log-out" size={18} color={colors.danger} />
+        <Icon name="log-out" size={18} color={colors.danger} />
         <Text variant="bodyStrong" color="danger">
           Sign out
         </Text>

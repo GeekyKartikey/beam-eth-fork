@@ -3,7 +3,7 @@
  * name with an ENS "Primary name" badge when the reverse check matched, the
  * full grouped address, and where the recipient was found.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 import type { Intent } from '../intent';
@@ -96,7 +96,7 @@ export function RecipientBlock({ intent }: { intent: Intent }) {
         ) : null}
         <AddressText address={intent.to} />
         <View style={styles.inline}>
-          <Feather name={source.icon} size={12} color={colors.textSecondary} />
+          <Icon name={source.icon} size={12} color={colors.textSecondary} />
           <Text variant="caption" color="textSecondary">
             {source.text}
           </Text>

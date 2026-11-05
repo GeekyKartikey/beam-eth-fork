@@ -3,7 +3,7 @@
  * read, lets the user inspect the raw text and switch it off, or offers the
  * clipboard when the screen couldn't be read.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import type { AgentContext } from '../agentApi';
@@ -96,7 +96,7 @@ export function ContextChip({ state, excluded, onExcludedChange, onUseClipboard,
             {ctx.truncated ? <Pill label="Truncated" tone="warning" /> : null}
           </View>
         </View>
-        <Feather name={open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textTertiary} />
+        <Icon name={open ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textTertiary} />
       </Pressable>
       {open ? (
         <>

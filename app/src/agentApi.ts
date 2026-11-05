@@ -25,6 +25,7 @@ import {
   type TransferError,
 } from './intent';
 import type { LimitState } from './limits';
+import { RISK_LEVELS, RISK_SIGNALS, type Assessment } from './risk';
 import { prepareOnDevice, toDecimal } from './prepare';
 import { loadServerStatus } from './serverApi';
 import { isRecord, isStringArray, isWeiString } from './storage';
@@ -58,7 +59,7 @@ export type Clarification = { question: string; options: string[] };
 /** The only intent fields the app reads from the server. */
 type ProposedIntent = Pick<Intent, 'id' | 'to' | 'toName' | 'amountWei'>;
 
-type AgentResponse = { reply: string; intents: ProposedIntent[]; clarification: Clarification | null };
+type AgentResponse = { reply: string; intents: ProposedIntent[]; clarification: Clarification | null; assessment: Assessment | null };
 
 /** Why the agent couldn't be used for a turn. */
 export type AgentErrorKind = 'offline' | 'auth' | 'bad-response' | 'mismatch';
@@ -89,6 +90,12 @@ const isProposal = (v: unknown): v is ProposedIntent =>
 const isClarification = (v: unknown): v is Clarification =>
   isRecord(v) && typeof v.question === 'string' && isStringArray(v.options);
 
+const isAssessment = (v: unknown): v is Assessment =>
+  isRecord(v) &&
+  (RISK_LEVELS as readonly string[]).includes(v.level as string) &&
+  Array.isArray(v.signals) &&
+  v.signals.every((s) => (RISK_SIGNALS as readonly string[]).includes(s as string));
+
 /**
  * Validates the response body (only the fields the app uses).
  * @param v Parsed JSON.
@@ -100,10 +107,12 @@ function parseResponse(v: unknown, requestId: string): AgentResponse | null {
   if (!Array.isArray(v.intents) || !v.intents.every(isProposal)) return null;
   const clarification = v.clarification ?? null;
   if (clarification !== null && !isClarification(clarification)) return null;
+  const assessment = isAssessment(v.assessment) ? v.assessment : null;
   return {
     reply: v.reply,
     intents: v.intents.slice(0, MAX_INTENTS_PER_REQUEST),
     clarification: clarification && { question: clarification.question, options: clarification.options.slice(0, 4) },
+    assessment,
   };
 }
 
@@ -159,6 +168,7 @@ type TurnOutcome = {
   reply: string;
   intents: Intent[];
   clarification: Clarification | null;
+  assessment: Assessment | null;
 };
 
 type TurnInput = {
@@ -235,6 +245,7 @@ export async function planTurn(input: TurnInput): Promise<TurnOutcome> {
       reply: [res.reply, ...errors].filter(Boolean).join('\n\n'),
       intents: results.filter((r): r is Intent => !isTransferError(r)),
       clarification: res.clarification,
+      assessment: res.assessment,
     };
   } catch (e) {
     if (signal.aborted || !(e instanceof AgentError)) throw e;
@@ -242,15 +253,15 @@ export async function planTurn(input: TurnInput): Promise<TurnOutcome> {
   }
 
   if (failure === 'auth') {
-    return { notice: { kind: failure, text: 'Agent auth failed (check token)', tone: 'danger' }, reply: '', intents: [], clarification: null };
+    return { notice: { kind: failure, text: 'Agent auth failed (check token)', tone: 'danger' }, reply: '', intents: [], clarification: null, assessment: null };
   }
   const notice: TurnOutcome['notice'] = { kind: failure, ...FALLBACK_NOTICE[failure] };
   const parsed = parseFallback({ contextText: context?.text ?? null, userTexts, network: NETWORK });
   if (parsed.kind === 'clarify') {
-    return { notice, reply: '', intents: [], clarification: { question: parsed.question, options: parsed.options } };
+    return { notice, reply: '', intents: [], clarification: { question: parsed.question, options: parsed.options }, assessment: null };
   }
   const result = await prepare(randomUUID(), parsed.to, parsed.amount, 'fallback');
   return isTransferError(result)
-    ? { notice, reply: result.message, intents: [], clarification: null }
-    : { notice, reply: '', intents: [result], clarification: null };
+    ? { notice, reply: result.message, intents: [], clarification: null, assessment: null }
+    : { notice, reply: '', intents: [result], clarification: null, assessment: null };
 }

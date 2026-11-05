@@ -10,7 +10,7 @@
  * aborts the in-flight request, resets the stack to the Wallet tab and moves
  * the task to back.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../src/components/Icon';
 import type { NavigationProp, ParamListBase } from '@react-navigation/native';
 import * as Clipboard from 'expo-clipboard';
 import { randomUUID } from 'expo-crypto';
@@ -33,11 +33,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BubbleOverlay } from '../modules/bubble-overlay';
 import { planTurn, type AgentContext, type AgentErrorKind, type ChatTurn, type Clarification } from '../src/agentApi';
+import { paymentLevel, type Assessment } from '../src/risk';
+import { getReadAloud, paymentSpeech, speak, verdictSpeech } from '../src/voice';
 import { decodeReviewLink, type ReviewLinkPayload } from '../src/api';
 import { PendingBanner, SetupBanner } from '../src/components/Banner';
 import { BrandMark } from '../src/components/BrandMark';
 import { ContextChip, type CapturedContext, type ContextState } from '../src/components/ContextChip';
 import { IntentCard } from '../src/components/IntentCard';
+import { SafetyCard, SIGNAL_COPY } from '../src/components/RiskVerdict';
 import { MessageBubble, NoticeRow, TypingIndicator } from '../src/components/MessageBubble';
 import { NetworkPill } from '../src/components/NetworkPill';
 import { SuggestionChip } from '../src/components/SuggestionChip';
@@ -74,7 +77,7 @@ const EXTERNAL_AGENT = 'External agent';
 
 type Turn =
   | { id: string; kind: 'user'; text: string }
-  | { id: string; kind: 'assistant'; text: string; intents: Intent[]; clarification: Clarification | null }
+  | { id: string; kind: 'assistant'; text: string; intents: Intent[]; clarification: Clarification | null; assessment: Assessment | null }
   | { id: string; kind: 'notice'; text: string; tone: 'warning' | 'danger'; icon: IconName };
 
 /**
@@ -160,6 +163,20 @@ function toChat(turns: Turn[]): ChatTurn[] {
  * that pushes `ask` over `index`; on a cold start the state is already `[ask]`.
  * @returns The sheet, remounted per capture so a new tap starts a fresh session.
  */
+/**
+ * Text to read aloud for a new assistant turn: the payment, else the screen
+ * verdict, else the reply. Speech never confirms; the fingerprint still does.
+ * @param intent The turn's first payment, if any.
+ * @param assessment The turn's Scam Shield verdict, if any.
+ * @param reply The assistant reply text.
+ * @returns What to speak, or null for nothing.
+ */
+function speakFor(intent: Intent | null, assessment: Assessment | null, reply: string): string | null {
+  if (intent) return paymentSpeech(intent, paymentLevel(intent.warnings, assessment));
+  if (assessment) return verdictSpeech(assessment, assessment.signals.map((sig) => SIGNAL_COPY[sig]));
+  return reply || null;
+}
+
 export default function AskRoute() {
   const { ctx, p } = useLocalSearchParams<{ ctx?: string; p?: string }>();
   const navigation = useNavigation<NavigationProp<ParamListBase>>();
@@ -250,7 +267,7 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
       setBusy(false);
       const turn: Turn =
         result && !isTransferError(result)
-          ? { id: randomUUID(), kind: 'assistant', text: 'An outside agent asked for this payment. Check every detail.', intents: [result], clarification: null }
+          ? { id: randomUUID(), kind: 'assistant', text: 'An outside agent asked for this payment. Check every detail.', intents: [result], clarification: null, assessment: null }
           : { id: randomUUID(), kind: 'notice', text: result?.message ?? 'Something went wrong. Try again.', tone: 'danger', icon: 'alert-circle' };
       setTurns([turn]);
     })();
@@ -303,8 +320,17 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
         added.push({ id: randomUUID(), kind: 'notice', text, tone, icon: NOTICE_ICON[kind] });
       }
       const reply = [...new Set([outcome.reply, outcome.clarification?.question ?? ''])].filter(Boolean).join('\n\n');
-      if (reply || outcome.intents.length) {
-        added.push({ id: randomUUID(), kind: 'assistant', text: reply, intents: outcome.intents, clarification: outcome.clarification });
+      if (reply || outcome.intents.length || outcome.assessment) {
+        added.push({
+          id: randomUUID(),
+          kind: 'assistant',
+          text: reply,
+          intents: outcome.intents,
+          clarification: outcome.clarification,
+          assessment: outcome.assessment,
+        });
+        const spoken = speakFor(outcome.intents[0] ?? null, outcome.assessment, reply);
+        if (spoken) void getReadAloud().then((on) => on && speak(spoken));
       }
       setTurns((t) => [...t, ...added]);
     } catch {
@@ -389,6 +415,7 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
             return (
               <View key={turn.id} style={styles.turn}>
                 {turn.text ? <MessageBubble role="assistant" text={turn.text} /> : null}
+                {turn.assessment ? <SafetyCard assessment={turn.assessment} /> : null}
                 {turn.intents.map((intent) => (
                   <IntentCard
                     key={`${turn.id}:${intent.id}`}
@@ -437,7 +464,7 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
             onPress={() => void send(input)}
             style={({ pressed }) => [styles.send, pressed && styles.sendPressed, !canSend && styles.sendDisabled]}
           >
-            <Feather name="arrow-up" size={20} color={colors.textInverse} />
+            <Icon name="arrow-up" size={20} color={colors.textInverse} />
           </Pressable>
         </View>
       </>
@@ -476,7 +503,7 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
               onPress={dismiss}
               style={({ pressed }) => [styles.close, pressed && styles.closePressed]}
             >
-              <Feather name="x" size={18} color={colors.textSecondary} />
+              <Icon name="x" size={18} color={colors.textSecondary} />
             </Pressable>
           </View>
           {body}

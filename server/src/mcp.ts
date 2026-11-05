@@ -71,6 +71,7 @@ export function mcpCtx(deps: McpDeps, contextText: string | null): ToolCtx {
     userTexts: [],
     intents: [],
     clarification: null,
+    assessment: null,
   };
 }
 

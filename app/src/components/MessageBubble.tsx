@@ -3,7 +3,7 @@
  * bubbles (left, with the brand avatar), the animated typing indicator and
  * compact system notices (agent offline, auth failure, errors).
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 import { colors, radius, space } from '../theme';
@@ -110,7 +110,7 @@ export function NoticeRow({ text, tone, icon }: { text: string; tone: 'warning' 
       accessibilityRole="alert"
       style={[styles.notice, warn ? styles.noticeWarning : styles.noticeDanger]}
     >
-      <Feather name={icon} size={14} color={warn ? colors.warning : colors.danger} />
+      <Icon name={icon} size={14} color={warn ? colors.warning : colors.danger} />
       <Text variant="captionStrong" color={tone} style={styles.shrink}>
         {text}
       </Text>

@@ -35,7 +35,7 @@ describe('runAgent tool loop', () => {
 
     const [body, options] = model.mock.calls[0] ?? [];
     expect(body).toMatchObject({ model: 'test-model', system: buildSystemPrompt(ARC) });
-    expect(body?.tools).toHaveLength(5);
+    expect(body?.tools).toHaveLength(6);
     expect(options?.timeout).toBe(15_000);
     expect(toolResultsOf(model, 1)[0]).toMatchObject({ tool_use_id: 'toolu_1', is_error: false });
   });

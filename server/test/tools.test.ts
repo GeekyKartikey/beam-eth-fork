@@ -301,9 +301,9 @@ describe('other tools', () => {
     expect(tooMany).toMatchObject({ error: 'BAD_TOOL_INPUT' });
   });
 
-  it('exposes five tool definitions with object schemas and network-filled descriptions', () => {
+  it('exposes six tool definitions with object schemas and network-filled descriptions', () => {
     const defs = toolDefs(ARC);
-    expect(defs.map((t) => t.name).sort()).toEqual(['ask_user', 'get_tx_status', 'get_wallet_balance', 'inspect_recipient', 'prepare_payment']);
+    expect(defs.map((t) => t.name).sort()).toEqual(['ask_user', 'assess_screen', 'get_tx_status', 'get_wallet_balance', 'inspect_recipient', 'prepare_payment']);
     const prep = defs.find((t) => t.name === 'prepare_payment');
     expect(prep?.input_schema).toMatchObject({ type: 'object', required: ['to', 'amount', 'reason'] });
     expect(prep?.description).toContain('USDC payment on Arc Testnet');

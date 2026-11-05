@@ -52,3 +52,17 @@ export function BrandMark({ size, variant = 'color' }: { size: number; variant?:
     </Svg>
   );
 }
+
+/**
+ * Beam glyph alone, for icon slots (tab bar).
+ * @param props.size Edge length in dp.
+ * @param props.color Fill colour.
+ * @returns An SVG element, hidden from screen readers.
+ */
+export function BeamGlyph({ size, color }: { size: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox={`0 0 ${BEAM_GRID} ${BEAM_GRID}`} {...A11Y_HIDDEN}>
+      <Path d={BEAM_PATH} fill={color} fillRule="evenodd" />
+    </Svg>
+  );
+}

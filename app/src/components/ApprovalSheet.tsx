@@ -5,7 +5,7 @@
  * ID simulator). The sheet polls until the server signs, then shows how it
  * ended. One primary action per state.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
@@ -169,11 +169,11 @@ function Waiting({ connectUrl, detail }: { connectUrl: string; detail: string })
             onPress={() => void Linking.openURL(SIMULATOR_URL)}
             style={({ pressed }) => [styles.note, pressed && styles.notePressed]}
           >
-            <Feather name="tool" size={14} color={colors.warning} />
+            <Icon name="tool" size={14} color={colors.warning} />
             <Text variant="captionStrong" color="warning" style={styles.flex}>
               Test mode: verify with the World ID simulator
             </Text>
-            <Feather name="external-link" size={14} color={colors.warning} />
+            <Icon name="external-link" size={14} color={colors.warning} />
           </Pressable>
         ) : null}
         {qr ? (
@@ -240,7 +240,7 @@ function Ended({ phase, payment, onRetry, onClose }: { phase: EndPhase; payment:
     <>
       <View style={styles.body} accessibilityLiveRegion="polite">
         <View style={[styles.badge, { backgroundColor: BADGE_BG[view.tone] }]}>
-          <Feather name={view.icon} size={26} color={colors[view.tone]} />
+          <Icon name={view.icon} size={26} color={colors[view.tone]} />
         </View>
         <Text variant="headline" align="center">
           {view.title}

@@ -15,7 +15,7 @@
  */
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold } from '@expo-google-fonts/inter';
 import { RobotoMono_400Regular, RobotoMono_500Medium, RobotoMono_600SemiBold } from '@expo-google-fonts/roboto-mono';
-import { Feather } from '@expo/vector-icons';
+import { Icon } from '../src/components/Icon';
 import { PrivyProvider } from '@privy-io/expo';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -89,7 +89,7 @@ function ConfigMissing() {
     <View style={styles.missing}>
       <Card style={styles.card}>
         <View style={styles.icon}>
-          <Feather name="settings" size={20} color={colors.primary} />
+          <Icon name="settings" size={20} color={colors.primary} />
         </View>
         <Text variant="headline">Almost there</Text>
         <Text variant="callout" color="textSecondary">

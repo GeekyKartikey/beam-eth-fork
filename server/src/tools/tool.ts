@@ -8,6 +8,7 @@ import type { ChainClient } from '../chain';
 import { createNameResolver, type EnsReader, type NameResolver } from '../ens';
 import type { Intent, IntentOrigin, ScreenContextInput, TransferErrorCode } from '../intent';
 import type { Network } from '../network';
+import type { Assessment } from '../risk';
 import type { Clarification } from '../schemas';
 
 /** Per-request state the tools read and write. The model can only reach it through tool inputs. */
@@ -31,6 +32,8 @@ export type ToolCtx = {
   intents: Intent[];
   /** Set by `ask_user`; ends the loop. */
   clarification: Clarification | null;
+  /** Set by `assess_screen`, already merged with the deterministic floor. */
+  assessment: Assessment | null;
 };
 
 /** Error codes a tool can return: transfer validation codes plus dispatcher codes. */

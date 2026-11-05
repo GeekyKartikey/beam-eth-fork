@@ -5,7 +5,7 @@
  * with World ID (when required), Confirm/Cancel (or hold-to-confirm) and the
  * execution status with explorer links.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import type { ConnectedEthereumWallet } from '@privy-io/expo';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
@@ -106,7 +106,7 @@ export function IntentCard({ intent, wallet, address, onSettled }: Props) {
   if (declined) {
     return (
       <View style={styles.declined} accessibilityRole="text">
-        <Feather name="x-circle" size={14} color={colors.textTertiary} />
+        <Icon name="x-circle" size={14} color={colors.textTertiary} />
         <Text variant="caption" color="textTertiary">
           Payment of {money(BigInt(intent.amountWei))} cancelled.
         </Text>
@@ -142,7 +142,7 @@ export function IntentCard({ intent, wallet, address, onSettled }: Props) {
         <View style={styles.stack}>
           {intent.warnings.map((w) => (
             <View key={w} style={styles.warning} accessibilityRole="alert">
-              <Feather name="alert-triangle" size={15} color={colors.warning} style={styles.rowIcon} />
+              <Icon name="alert-triangle" size={15} color={colors.warning} style={styles.rowIcon} />
               <Text variant="caption" color="warning" style={styles.flex}>
                 {WARNING_COPY[w]}
               </Text>
@@ -252,7 +252,7 @@ function ApprovalRow({ approved, reasons }: { approved: boolean; reasons: string
           </Text>
         )}
       </View>
-      {approved ? <Feather name="check-circle" size={18} color={colors.success} /> : null}
+      {approved ? <Icon name="check-circle" size={18} color={colors.success} /> : null}
     </View>
   );
 }
@@ -287,7 +287,7 @@ function ReasonRow({ text, children }: { text: string; children?: ReactNode }) {
   return (
     <View style={styles.reason}>
       <View style={styles.reasonHead}>
-        <Feather name="info" size={15} color={colors.textSecondary} style={styles.rowIcon} />
+        <Icon name="info" size={15} color={colors.textSecondary} style={styles.rowIcon} />
         <Text variant="captionStrong" color="textSecondary" style={styles.flex} accessibilityLiveRegion="polite">
           {text}
         </Text>
@@ -317,7 +317,7 @@ function ExpiryCountdown({ expiresAt }: { expiresAt: number }) {
   const label = expired ? 'Expired' : `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
   return (
     <View style={styles.inline} accessible accessibilityLabel={expired ? 'Payment expired' : `Expires in ${label}`}>
-      <Feather name="clock" size={12} color={expired ? colors.danger : colors.textTertiary} />
+      <Icon name="clock" size={12} color={expired ? colors.danger : colors.textTertiary} />
       <Text variant="overline" color={expired ? 'danger' : 'textTertiary'} style={styles.tabular}>
         {label}
       </Text>

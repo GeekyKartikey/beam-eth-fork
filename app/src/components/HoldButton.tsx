@@ -3,7 +3,7 @@
  * biometric or device PIN is enrolled. A darker purple fill sweeps across the
  * button over 1.5 s; releasing early rewinds it.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import * as Haptics from 'expo-haptics';
 import { useRef } from 'react';
 import { Animated, Easing, Pressable, StyleSheet } from 'react-native';
@@ -44,7 +44,7 @@ export function HoldButton({ disabled, onComplete }: { disabled: boolean; onComp
       style={[styles.button, disabled && styles.inactive]}
     >
       <Animated.View style={[styles.fill, { transform: [{ scaleX: progress }] }]} />
-      <Feather name="lock" size={16} color={colors.textInverse} />
+      <Icon name="lock" size={16} color={colors.textInverse} />
       <Text variant="button" color="textInverse">
         Hold to confirm
       </Text>

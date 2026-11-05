@@ -3,7 +3,7 @@
  * and an onchain `linkHuman`) and "Your handle" (claim `<label>.<parent>.eth`
  * with a World ID `handle` approval, one per person; copy it once claimed).
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import * as Haptics from 'expo-haptics';
 import { useRef, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, Share, StyleSheet, TextInput, View } from 'react-native';
@@ -393,7 +393,7 @@ function IconAction({ icon, label, onPress }: { icon: 'copy' | 'check' | 'share-
       onPress={onPress}
       style={({ pressed }) => [styles.iconAction, pressed && styles.pressed]}
     >
-      <Feather name={icon} size={18} color={icon === 'check' ? colors.success : colors.textSecondary} />
+      <Icon name={icon} size={18} color={icon === 'check' ? colors.success : colors.textSecondary} />
     </Pressable>
   );
 }

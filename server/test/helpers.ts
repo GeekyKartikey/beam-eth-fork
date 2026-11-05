@@ -112,6 +112,7 @@ export function makeCtx(over: Partial<ToolCtx> = {}): ToolCtx {
     userTexts: ['pay this'],
     intents: [],
     clarification: null,
+    assessment: null,
     ...over,
   };
 }

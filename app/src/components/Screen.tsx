@@ -6,6 +6,7 @@
 import { useState, type ReactNode } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { tabBarSpace } from './FloatingTabBar';
 import { colors, space } from '../theme';
 import { Text } from './ui';
 
@@ -43,7 +44,7 @@ export function Screen({
   return (
     <ScrollView
       style={styles.screen}
-      contentContainerStyle={[styles.content, { paddingTop: insets.top + space.md }]}
+      contentContainerStyle={[styles.content, { paddingTop: insets.top + space.md, paddingBottom: tabBarSpace(insets.bottom) }]}
       keyboardShouldPersistTaps="handled"
       refreshControl={
         onRefresh ? (

@@ -6,6 +6,7 @@
 import { z } from 'zod';
 import { parseAmount, toChecksumAddress, type Intent } from './intent';
 import type { Network } from './network';
+import { RISK_LEVELS, RISK_SIGNALS } from './risk';
 
 /** Max characters of captured screen/clipboard text (the app truncates at 4000). */
 const MAX_CONTEXT_CHARS = 4000;
@@ -113,6 +114,9 @@ const ClarificationSchema = z.object({ question: z.string(), options: z.array(z.
 /** A question with tappable options. */
 export type Clarification = z.infer<typeof ClarificationSchema>;
 
+/** Scam Shield verdict on the captured screen. */
+const AssessmentSchema = z.object({ level: z.enum(RISK_LEVELS), signals: z.array(z.enum(RISK_SIGNALS)) });
+
 /**
  * Response body schema for a network (used by tests and as the contract for the app).
  * @param network Target network.
@@ -124,6 +128,7 @@ export function agentResponseSchema(network: Network) {
     reply: z.string(),
     intents: z.array(intentSchema(network)),
     clarification: ClarificationSchema.nullable(),
+    assessment: AssessmentSchema.nullable(),
     meta: z.object({ model: z.string(), toolCalls: z.array(z.string()), ms: z.number(), fallback: z.boolean() }),
   });
 }

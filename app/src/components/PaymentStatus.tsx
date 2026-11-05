@@ -3,7 +3,7 @@
  * Confirm/Cancel buttons once a payment is in flight or settled, with the
  * transaction hash and explorer link where one exists.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { ActivityIndicator, Animated, Linking, StyleSheet, View } from 'react-native';
 import { NETWORK } from '../config';
@@ -44,7 +44,7 @@ function StateBadge({ badge }: { badge: Badge }) {
   }
   return (
     <Animated.View style={[styles.badge, { backgroundColor: BADGE_BG[badge.tone], transform: [{ scale }] }]}>
-      <Feather name={badge.icon} size={26} color={colors[badge.tone]} />
+      <Icon name={badge.icon} size={26} color={colors[badge.tone]} />
     </Animated.View>
   );
 }

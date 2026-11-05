@@ -5,7 +5,7 @@
  * explanation (and a shortcut to grant it) while the overlay permission is
  * missing. Renders nothing without the native module.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { BubbleOverlay } from '../../modules/bubble-overlay';
@@ -83,7 +83,7 @@ export function BubbleCard({ status, refresh }: { status: PermissionStatus | nul
 
       {blocked ? (
         <View style={styles.notice}>
-          <Feather name="lock" size={14} color={colors.warning} />
+          <Icon name="lock" size={14} color={colors.warning} />
           <Text variant="caption" color="textSecondary" style={styles.flex}>
             {NO_OVERLAY_MESSAGE}
           </Text>
@@ -99,7 +99,7 @@ export function BubbleCard({ status, refresh }: { status: PermissionStatus | nul
       <View style={styles.tips} accessible accessibilityLabel={TIPS.map((t) => t.label).join(', ')}>
         {TIPS.map((tip) => (
           <View key={tip.label} style={styles.tip}>
-            <Feather name={tip.icon} size={13} color={colors.textTertiary} />
+            <Icon name={tip.icon} size={13} color={colors.textTertiary} />
             <Text variant="caption" color="textTertiary" numberOfLines={1}>
               {tip.label}
             </Text>

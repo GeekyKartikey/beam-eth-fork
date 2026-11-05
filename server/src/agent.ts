@@ -14,6 +14,7 @@ import { parseFallback } from './fallbackParser';
 import { isTransferError, prepareTransfer, shortAddress, type Intent } from './intent';
 import type { Network } from './network';
 import { buildMessages, buildSystemPrompt } from './prompt';
+import { screenAssessment } from './risk';
 import type { AgentRequest, AgentResponse, Clarification } from './schemas';
 import { runTool, toolDefs } from './tools/index';
 import { errorCode, resolverFor, type ToolCtx } from './tools/tool';
@@ -93,6 +94,7 @@ export async function runAgent(req: AgentRequest, deps: AgentDeps): Promise<Agen
     userTexts: req.messages.filter((m) => m.role === 'user').map((m) => m.text),
     intents: [],
     clarification: null,
+    assessment: null,
   };
   const toolCalls: string[] = [];
   const errorCodes: string[] = [];
@@ -105,12 +107,20 @@ export async function runAgent(req: AgentRequest, deps: AgentDeps): Promise<Agen
     return runFallback(req, ctx, errorCodes);
   });
 
+  const assessment = screenAssessment({
+    contextText: ctx.context?.text ?? null,
+    lastUserText: ctx.userTexts[ctx.userTexts.length - 1] ?? '',
+    reported: ctx.assessment,
+    hasIntents: answer.intents.length > 0,
+  });
+
   return {
     response: {
       requestId: req.requestId,
       reply: clampReply(answer.reply),
       intents: answer.intents,
       clarification: answer.clarification,
+      assessment,
       meta: { model: deps.model, toolCalls, ms: Date.now() - started, fallback: answer.fallback },
     },
     errorCodes,

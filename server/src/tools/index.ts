@@ -6,6 +6,7 @@ import type Anthropic from '@anthropic-ai/sdk';
 import { z } from 'zod';
 import type { Network } from '../network';
 import { askUser } from './askUser';
+import { assessScreen } from './assessScreen';
 import { getTxStatus } from './getTxStatus';
 import { getWalletBalance } from './getWalletBalance';
 import { inspectRecipient } from './inspectRecipient';
@@ -48,7 +49,7 @@ function toDef<S extends z.ZodObject>(tool: Tool<S>, network: Network): Anthropi
   };
 }
 
-const TOOLS = [getWalletBalance, inspectRecipient, preparePayment, getTxStatus, askUser] as const;
+const TOOLS = [getWalletBalance, inspectRecipient, preparePayment, getTxStatus, askUser, assessScreen] as const;
 const CALLERS = new Map<string, Caller>(TOOLS.map((t) => [t.name, safeCaller(t as Tool<z.ZodObject>)]));
 
 /**

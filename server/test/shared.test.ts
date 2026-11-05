@@ -15,7 +15,7 @@ import { APPROVAL_TYPES, beamPayDomain, BEAM_PAY_ABI, toSourceApp } from '../src
 import { ARC, mockEns, NAMED, BEAM_PAY, RECIPIENT } from './helpers';
 
 const read = (rel: string) => readFileSync(new URL(rel, import.meta.url));
-const SHARED = ['network.ts', 'intent.ts', 'fallbackParser.ts', 'beamPay.ts', 'ens.ts', 'api.ts'];
+const SHARED = ['network.ts', 'intent.ts', 'fallbackParser.ts', 'beamPay.ts', 'ens.ts', 'api.ts', 'risk.ts'];
 
 describe('shared files', () => {
   it.each(SHARED)('server/src/%s equals app/src/%s', (name) => {

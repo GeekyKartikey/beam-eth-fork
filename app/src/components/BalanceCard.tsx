@@ -3,7 +3,7 @@
  * USDC" on Arc), the onchain per-payment cap, a copyable address chip and four
  * quick actions (Receive, Copy, Faucet, Explorer). Receive opens the QR sheet.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import { useState } from 'react';
 import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-native';
 import type { Address } from 'viem';
@@ -55,7 +55,7 @@ function QuickAction({
       {({ pressed }) => (
         <>
           <View style={[styles.actionCircle, primary && styles.actionPrimary, pressed && styles.pressed]}>
-            <Feather name={icon} size={20} color={primary ? colors.textInverse : colors.primary} />
+            <Icon name={icon} size={20} color={primary ? colors.textInverse : colors.primary} />
           </View>
           <Text variant="captionStrong" numberOfLines={1}>
             {label}
@@ -110,7 +110,7 @@ export function BalanceCard({ address, balance, balanceError, cap, handle }: Pro
         )}
         {cap !== null ? (
           <View style={styles.inline} accessible accessibilityLabel={`Per payment cap ${money(cap)}, protected onchain`}>
-            <Feather name="lock" size={13} color={colors.textTertiary} />
+            <Icon name="lock" size={13} color={colors.textTertiary} />
             <Text variant="caption" color="textSecondary">
               Per payment cap {money(cap)} · protected onchain
             </Text>
@@ -118,7 +118,7 @@ export function BalanceCard({ address, balance, balanceError, cap, handle }: Pro
         ) : null}
         {balanceError ? (
           <View style={styles.inline} accessibilityLiveRegion="polite">
-            <Feather name="alert-circle" size={14} color={colors.danger} />
+            <Icon name="alert-circle" size={14} color={colors.danger} />
             <Text variant="caption" color="danger" style={styles.flex}>
               {"Couldn't load your balance. Pull down to retry."}
             </Text>
@@ -136,7 +136,7 @@ export function BalanceCard({ address, balance, balanceError, cap, handle }: Pro
             <Text variant="mono" color="textSecondary">
               {copied ? 'Copied' : shortAddress(address)}
             </Text>
-            <Feather name={copied ? 'check' : 'copy'} size={14} color={copied ? colors.success : colors.textTertiary} />
+            <Icon name={copied ? 'check' : 'copy'} size={14} color={copied ? colors.success : colors.textTertiary} />
           </Pressable>
         ) : (
           <View style={styles.chip}>

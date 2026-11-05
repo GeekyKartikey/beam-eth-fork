@@ -5,7 +5,7 @@
  * a resend countdown and Privy's error reason surfaced). Hardware back steps
  * back through the views.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import { useLoginWithEmail } from '@privy-io/expo';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useState, type ReactNode } from 'react';
@@ -47,7 +47,7 @@ function withCause(summary: string, e: unknown): string {
 function FieldError({ text }: { text: string }) {
   return (
     <View style={styles.inline} accessibilityLiveRegion="polite">
-      <Feather name="alert-circle" size={14} color={colors.danger} style={styles.inlineIcon} />
+      <Icon name="alert-circle" size={14} color={colors.danger} style={styles.inlineIcon} />
       <Text variant="caption" color="danger" style={styles.flex}>
         {text}
       </Text>
@@ -68,7 +68,7 @@ function BackButton({ onPress }: { onPress: () => void }) {
       onPress={onPress}
       style={({ pressed }) => [styles.back, pressed && styles.backPressed]}
     >
-      <Feather name="chevron-left" size={26} color={colors.text} />
+      <Icon name="chevron-left" size={26} color={colors.text} />
     </Pressable>
   );
 }

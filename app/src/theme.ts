@@ -1,8 +1,10 @@
 /**
  * @file Design tokens: colors, type scale, spacing, radii and elevation.
  *
- * The Beam palette: purple #6E54FF, lavender #DDD7FE and ink #0E091C on an
- * off-white canvas. Inter for all UI text; Roboto Mono only for addresses and hashes.
+ * A light, wallet-grade palette: white surfaces, near-black text and primary
+ * buttons, cool greys for structure, one blue for text links, and colour
+ * otherwise only for status (green, amber, red) and the partner marks. Inter
+ * for all UI text; Roboto Mono only for addresses and hashes.
  *
  * Light mode only, by product decision. Every screen and component
  * takes values from here; no hex codes or font names elsewhere.
@@ -10,36 +12,43 @@
 import { Platform, type TextStyle, type ViewStyle } from 'react-native';
 
 export const colors = {
-  /** App canvas behind cards (off-white). */
-  canvas: '#FBFAF9',
+  /** App background. */
+  canvas: '#FFFFFF',
   surface: '#FFFFFF',
-  surfaceMuted: '#F5F4F8',
-  border: '#ECEAF1',
-  borderStrong: '#DCD8E6',
+  /** Fills: inputs, chips, icon tiles, quiet buttons. */
+  surfaceMuted: '#F3F4F6',
+  border: '#E8EAED',
+  borderStrong: '#D2D6DB',
 
-  /** Ink: primary text. */
-  text: '#0E091C',
-  textSecondary: '#5B5770',
-  textTertiary: '#8F8BA3',
+  /** Primary text. */
+  text: '#121314',
+  textSecondary: '#55595F',
+  /** Meta text and placeholders. About 5.2:1 on white. */
+  textTertiary: '#6B7077',
   textInverse: '#FFFFFF',
 
-  /** Ink, for the dark QR modules. */
-  ink: '#0E091C',
+  /** Dark QR modules. */
+  ink: '#121314',
 
-  /** Beam purple. */
-  primary: '#6E54FF',
-  primaryPressed: '#5A40F0',
-  primarySoft: '#F1EFFF',
-  /** Beam lavender. */
-  primarySoftBorder: '#DDD7FE',
+  /** Primary buttons and the active tab: near-black. */
+  primary: '#121314',
+  primaryPressed: '#34373B',
+  /** Text links and link icons. About 5.3:1 on white. */
+  primaryInk: '#3D5AFE',
+  /** Neutral soft fill for selected chips and secondary icon buttons. */
+  primarySoft: '#F3F4F6',
+  primarySoftBorder: '#E3E5E8',
 
-  success: '#0B9F6B',
-  successSoft: '#E6F7F0',
-  warning: '#B4650A',
-  warningSoft: '#FFF5E6',
+  /** About 5.4:1 on white. */
+  success: '#1A7F4B',
+  successSoft: '#E8F6EE',
+  /** About 5.5:1 on white. */
+  warning: '#9A5A0C',
+  warningSoft: '#FFF6E8',
   warningBorder: '#FFDCA8',
-  danger: '#D6364A',
-  dangerSoft: '#FDECEE',
+  /** About 6.5:1 on white. */
+  danger: '#C22437',
+  dangerSoft: '#FDEDEF',
 
   // Partner brand colours, used only for their official marks (see `components/logos.tsx`).
   /** Arc navy, from the Circle brand kit's flat Arc icon. */
@@ -49,8 +58,8 @@ export const colors = {
   /** ENS Blue, from ens.domains/brand. */
   brandEns: '#0080BC',
 
-  /** Dimmed backdrop behind the ask sheet. */
-  scrim: 'rgba(14, 9, 28, 0.42)',
+  /** Dimmed backdrop behind sheets. */
+  scrim: 'rgba(18, 19, 20, 0.45)',
 } as const;
 
 export type ColorToken = keyof typeof colors;
@@ -93,12 +102,9 @@ export const space = { xxs: 2, xs: 4, sm: 8, md: 12, lg: 16, xl: 20, xxl: 24, xx
 
 export const radius = { sm: 8, md: 12, lg: 16, xl: 22, xxl: 28, pill: 999 } as const;
 
-/** Soft, low-contrast elevation. Cards rely on hairline borders; only floating layers get shadows. */
+/** Floating layers only. Resting cards use a hairline, not a shadow. */
 export const shadow = {
-  card: Platform.select<ViewStyle>({
-    android: { elevation: 0 },
-    default: { shadowColor: '#0E091C', shadowOpacity: 0.04, shadowRadius: 6, shadowOffset: { width: 0, height: 1 } },
-  }),
+  card: {} as ViewStyle,
   sheet: Platform.select<ViewStyle>({
     android: { elevation: 16 },
     default: { shadowColor: '#0E091C', shadowOpacity: 0.12, shadowRadius: 24, shadowOffset: { width: 0, height: -4 } },

@@ -5,8 +5,8 @@
  * Screens compose these instead of styling raw RN views, which keeps
  * typography, color and touch targets consistent across the app.
  */
-import { Feather } from '@expo/vector-icons';
-import type { ComponentProps, ReactNode } from 'react';
+import { Icon, type IconName } from './Icon';
+import type { ReactNode } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import { colors, radius, shadow, space, type as typeScale, type ColorToken, type TypeVariant } from '../theme';
 
-export type IconName = ComponentProps<typeof Feather>['name'];
+export type { IconName };
 
 /** Semantic tones shared by pills, tiles, dots and progress bars. */
 export type Tone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger';
@@ -95,7 +95,7 @@ export function Button({ label, variant = 'primary', icon, leading, loading, dis
         <ActivityIndicator color={colors[tone.fg]} size="small" />
       ) : (
         <>
-          {leading ?? (icon && <Feather name={icon} size={size === 'sm' ? 14 : 16} color={colors[tone.fg]} />)}
+          {leading ?? (icon && <Icon name={icon} size={size === 'sm' ? 14 : 16} color={colors[tone.fg]} />)}
           <Text variant="button" color={tone.fg} style={size === 'sm' && styles.buttonSmText}>
             {label}
           </Text>
@@ -158,7 +158,7 @@ export function IconTile({ icon, tone = 'primary', size = 40 }: { icon: IconName
   const t = TONES[tone];
   return (
     <View style={[styles.tile, { width: size, height: size, borderRadius: size * 0.3, backgroundColor: t.bg }]}>
-      <Feather name={icon} size={Math.round(size * 0.45)} color={colors[t.fg]} />
+      <Icon name={icon} size={Math.round(size * 0.45)} color={colors[t.fg]} />
     </View>
   );
 }
@@ -196,7 +196,7 @@ export function ListRow({ title, subtitle, icon, tone, leading, trailing, onPres
           </Text>
         ) : null}
       </View>
-      {trailing ?? (onPress ? <Feather name="chevron-right" size={18} color={colors.textTertiary} /> : null)}
+      {trailing ?? (onPress ? <Icon name="chevron-right" size={18} color={colors.textTertiary} /> : null)}
     </>
   );
   const style = [styles.row, divider && styles.rowDivider];

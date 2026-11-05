@@ -2,7 +2,7 @@
  * @file Outlined suggestion chip for the Ask sheet: quick actions before the
  * first message and clarification options from the agent.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { colors, HIT, radius, space } from '../theme';
@@ -43,7 +43,7 @@ export function SuggestionChip({
     >
       {icon ? (
         <View style={styles.icon}>
-          <Feather name={icon} size={14} color={colors.primary} />
+          <Icon name={icon} size={14} color={colors.primary} />
         </View>
       ) : null}
       <Text variant={mono ? 'mono' : 'captionStrong'} numberOfLines={1} style={styles.label}>

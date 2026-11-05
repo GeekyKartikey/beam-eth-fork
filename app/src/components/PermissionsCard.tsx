@@ -6,7 +6,7 @@
  * hint. Collapses to one "All set" row once everything is granted. Overlay is
  * required; the rest are recommended. Also exports the OEM autostart tip.
  */
-import { Feather } from '@expo/vector-icons';
+import { Icon } from './Icon';
 import { useState, type ReactNode } from 'react';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
 import { BubbleOverlay } from '../../modules/bubble-overlay';
@@ -84,11 +84,11 @@ function Hint({ label, children }: { label: string; children: ReactNode }) {
         onPress={() => setOpen((o) => !o)}
         style={({ pressed }) => [styles.hintToggle, pressed && styles.pressed]}
       >
-        <Feather name="info" size={14} color={colors.textTertiary} />
+        <Icon name="info" size={14} color={colors.textTertiary} />
         <Text variant="captionStrong" color="textSecondary" style={styles.flex}>
           {label}
         </Text>
-        <Feather name={open ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textTertiary} />
+        <Icon name={open ? 'chevron-up' : 'chevron-down'} size={16} color={colors.textTertiary} />
       </Pressable>
       {open ? <View style={styles.hintBody}>{children}</View> : null}
     </View>
@@ -159,7 +159,7 @@ export function PermissionsCard({ status, refresh }: { status: PermissionStatus 
       subtitle="The beam has everything it needs"
       accessibilityLabel={expanded ? 'All set. Hide permissions' : 'All set. Show permissions'}
       onPress={() => setExpanded((e) => !e)}
-      trailing={<Feather name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textTertiary} />}
+      trailing={<Icon name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={colors.textTertiary} />}
     />
   );
 
@@ -188,7 +188,7 @@ export function PermissionsCard({ status, refresh }: { status: PermissionStatus 
                   accessibilityLabel={`${row.title}. ${granted ? 'Granted' : row.missing}`}
                   trailing={
                     granted ? (
-                      <Feather name="check-circle" size={20} color={colors.success} accessibilityLabel="Granted" />
+                      <Icon name="check-circle" size={20} color={colors.success} accessibilityLabel="Granted" />
                     ) : (
                       <Button
                         label={row.action}
