@@ -5,6 +5,7 @@
  */
 package expo.modules.bubbleoverlay
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
@@ -12,16 +13,21 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
+import android.speech.RecognizerIntent
 import androidx.core.content.ContextCompat
+import expo.modules.kotlin.Promise
 import expo.modules.kotlin.exception.CodedException
 import expo.modules.kotlin.exception.Exceptions
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 
-/** Native side of `BubbleOverlay`. All functions are synchronous, matching `BubbleOverlayApi`. */
+/** Native side of `BubbleOverlay`. All functions are synchronous except `listen`, matching `BubbleOverlayApi`. */
 class BubbleOverlayModule : Module() {
   private val context: Context
     get() = appContext.reactContext ?: throw Exceptions.ReactContextLost()
+
+  /** The open `listen` call, answered by the speech activity's result. */
+  private var listening: Promise? = null
 
   override fun definition() = ModuleDefinition {
     Name("BubbleOverlay")
@@ -76,6 +82,41 @@ class BubbleOverlayModule : Module() {
     Function("minimizeApp") {
       appContext.currentActivity?.let { activity -> activity.runOnUiThread { activity.moveTaskToBack(true) } }
     }
+
+    // The system speech dialog does the recording, so the app needs no microphone permission.
+    AsyncFunction("listen") { promise: Promise ->
+      val activity = appContext.currentActivity
+      if (activity == null || listening != null) {
+        promise.resolve(null)
+        return@AsyncFunction
+      }
+      val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        .putExtra(RecognizerIntent.EXTRA_PROMPT, context.getString(R.string.listen_prompt))
+        .putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+      listening = promise
+      activity.runOnUiThread {
+        try {
+          activity.startActivityForResult(intent, LISTEN_REQUEST)
+        } catch (e: ActivityNotFoundException) {
+          listening = null
+          promise.reject("E_NO_SPEECH", "This phone has no speech recognizer.", e)
+        }
+      }
+    }
+
+    OnActivityResult { _, payload ->
+      if (payload.requestCode != LISTEN_REQUEST) return@OnActivityResult
+      val promise = listening ?: return@OnActivityResult
+      listening = null
+      val text = payload.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+      promise.resolve(if (payload.resultCode == Activity.RESULT_OK) text else null)
+    }
+  }
+
+  private companion object {
+    /** Request code for the speech-recognizer activity result. */
+    const val LISTEN_REQUEST = 49812
   }
 
   /**

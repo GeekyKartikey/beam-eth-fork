@@ -8,4 +8,5 @@
   <string name="bubble_notification_stop">Stop</string>
   <string name="bubble_content_description">Open Beam</string>
   <string name="bubble_stopped_toast">Beam stopped. Open the app to start it again.</string>
+  <string name="listen_prompt">Say what to pay or ask</string>
 </resources>

@@ -39,6 +39,8 @@ export interface BubbleOverlayApi {
   consumeScreenContext(id: string): ScreenContext | null;
   /** `moveTaskToBack(true)` on the current activity. */
   minimizeApp(): void;
+  /** Opens the system speech dialog. Resolves with what was said, or null if cancelled. */
+  listen(): Promise<string | null>;
 }
 
 export const BubbleOverlay: BubbleOverlayApi | null =

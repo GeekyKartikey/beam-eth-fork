@@ -197,7 +197,7 @@ export default function AskRoute() {
  * @param props.review `p` of an external agent's review link, if opened by one.
  * @returns Scrim plus sheet.
  */
-function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string | undefined }) {
+export function AskSheet({ ctxId, review, page = false }: { ctxId: string | undefined; review?: string; page?: boolean; inApp?: boolean }) {
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
   const { ready, user, wallet, address } = useWallet();
@@ -216,9 +216,9 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
   const closing = useRef(false);
 
   useEffect(() => {
-    Animated.spring(progress, { toValue: 1, damping: 26, stiffness: 260, overshootClamping: true, useNativeDriver: true }).start();
+    if (!page) Animated.spring(progress, { toValue: 1, damping: 26, stiffness: 260, overshootClamping: true, useNativeDriver: true }).start();
     return () => abortRef.current?.abort();
-  }, [progress]);
+  }, [progress, page]);
 
   const dismiss = useCallback(() => {
     if (closing.current) return;
@@ -231,12 +231,23 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
   }, [progress]);
 
   useEffect(() => {
+    if (page) return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       dismiss();
       return true;
     });
     return () => sub.remove();
-  }, [dismiss]);
+  }, [dismiss, page]);
+
+  // Voice input: the native speech dialog fills the message box; it never sends.
+  const listenToInput = useCallback(async () => {
+    try {
+      const said = await BubbleOverlay?.listen();
+      if (said) setInput((prev) => (prev ? `${prev} ${said}` : said));
+    } catch {
+      // No speech recognizer on this device; leave the box as it is.
+    }
+  }, []);
 
   // An external agent's payment: rebuild it on the device once the wallet is ready.
   const reviewed = useRef(false);
@@ -456,6 +467,17 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
             accessibilityLabel="Message to Beam"
             style={styles.input}
           />
+          {BubbleOverlay ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Speak"
+              disabled={busy}
+              onPress={() => void listenToInput()}
+              style={({ pressed }) => [styles.mic, pressed && styles.micPressed]}
+            >
+              <Icon name="mic" size={20} color={colors.textSecondary} />
+            </Pressable>
+          ) : null}
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Send"
@@ -468,6 +490,23 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
           </Pressable>
         </View>
       </>
+    );
+  }
+
+  if (page) {
+    return (
+      <View style={styles.pageRoot}>
+        <KeyboardAvoidingView behavior="padding" style={styles.flex}>
+          <View style={[styles.pageHeader, { paddingTop: insets.top + space.md }]}>
+            <BrandMark size={28} />
+            <Text variant="headline" accessibilityRole="header">
+              Beam
+            </Text>
+            <NetworkPill />
+          </View>
+          {body}
+        </KeyboardAvoidingView>
+      </View>
     );
   }
 
@@ -516,6 +555,8 @@ function AskSheet({ ctxId, review }: { ctxId: string | undefined; review: string
 const styles = StyleSheet.create({
   root: { flex: 1 },
   scrim: { backgroundColor: colors.scrim },
+  pageRoot: { flex: 1, backgroundColor: colors.canvas },
+  pageHeader: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.lg, paddingBottom: space.sm },
   kav: { flex: 1, justifyContent: 'flex-end' },
   sheet: {
     flexShrink: 1,
@@ -584,6 +625,15 @@ const styles = StyleSheet.create({
   },
   sendPressed: { backgroundColor: colors.primaryPressed },
   sendDisabled: { backgroundColor: colors.primarySoftBorder },
+  mic: {
+    width: HIT,
+    height: HIT,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  micPressed: { opacity: 0.6 },
   gate: { alignItems: 'center', gap: space.lg, paddingHorizontal: space.xxl, paddingTop: space.xl, paddingBottom: space.xxl },
   gateText: { alignItems: 'center', gap: space.sm },
   gateButton: { alignSelf: 'stretch', marginTop: space.sm },

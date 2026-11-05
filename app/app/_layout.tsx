@@ -71,6 +71,7 @@ export default function RootLayout() {
             {/* The sheets animate themselves (scrim fade + spring), so the screen transition is off. */}
             <Stack.Screen name="ask" options={SHEET} />
             <Stack.Screen name="review" options={SHEET} />
+            <Stack.Screen name="agents" options={{ animation: 'slide_from_right' }} />
           </Stack>
         </PrivyProvider>
       ) : (

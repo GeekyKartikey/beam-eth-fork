@@ -6,6 +6,7 @@
 import { Icon } from '../../src/components/Icon';
 import { usePrivy } from '@privy-io/expo';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '../../src/components/Avatar';
@@ -167,6 +168,19 @@ export default function ProfileScreen() {
           { icon: 'droplet', title: 'Faucet', subtitle: `Get free testnet ${NETWORK.symbol}`, onPress: () => open(NETWORK.faucetUrl) },
         ]}
       />
+
+      <View style={styles.group}>
+        <SectionHeader title="Agents" />
+        <Card>
+          <ListRow
+            icon="cpu"
+            tone="neutral"
+            title="Connected agents"
+            subtitle="Let AI agents request payments you approve with World ID"
+            onPress={() => router.push('/agents')}
+          />
+        </Card>
+      </View>
 
       <View style={styles.group}>
         <SectionHeader title="Preferences" />

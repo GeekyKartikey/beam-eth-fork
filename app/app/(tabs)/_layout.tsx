@@ -17,7 +17,7 @@ import { WalletDataProvider } from '../../src/walletData';
 
 const TABS: { name: string; title: string; icon: IconName | 'beam' }[] = [
   { name: 'index', title: 'Wallet', icon: 'credit-card' },
-  { name: 'activity', title: 'Activity', icon: 'clock' },
+  { name: 'chat', title: 'Ask', icon: 'message-circle' },
   { name: 'bubble', title: 'Beam', icon: 'beam' },
   { name: 'profile', title: 'Profile', icon: 'user' },
 ];
@@ -65,6 +65,7 @@ export default function TabsLayout() {
             }}
           />
         ))}
+        <Tabs.Screen name="activity" options={{ href: null, title: 'Activity' }} />
       </Tabs>
     </WalletDataProvider>
   );
