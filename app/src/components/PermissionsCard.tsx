@@ -1,5 +1,5 @@
 /**
- * @file Beam tab "Setup" checklist.
+ * @file Beam tab "Access" checklist.
  *
  * Progress header, one row per permission with a tinted icon and either a
  * green check or an Allow/Fix button, and a collapsible restricted-settings
@@ -132,7 +132,7 @@ export function PermissionsCard({ status, refresh }: { status: PermissionStatus 
   if (!BubbleOverlay) {
     return (
       <View>
-        <SectionHeader title="Setup" />
+        <SectionHeader title="Access" />
         <Card style={styles.card}>
           <ListRow
             icon="smartphone"
@@ -165,7 +165,7 @@ export function PermissionsCard({ status, refresh }: { status: PermissionStatus 
 
   return (
     <View>
-      <SectionHeader title="Setup" meta={`${ready} of ${rows.length} ready`} />
+      <SectionHeader title="Access" meta={`${ready} of ${rows.length} ready`} />
       <Card style={styles.card}>
         {allSet ? (
           summary

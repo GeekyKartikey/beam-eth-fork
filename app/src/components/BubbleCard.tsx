@@ -13,7 +13,7 @@ import { setBubbleEnabled } from '../bubble';
 import { fixPermission, type PermissionStatus } from '../permissions';
 import { colors, radius, space } from '../theme';
 import { BrandMark } from './BrandMark';
-import { Button, Card, StatusDot, Text, Toggle, type IconName } from './ui';
+import { Button, Card, Text, type IconName } from './ui';
 
 const NO_OVERLAY_MESSAGE = 'Allow "Display over other apps" to turn on the beam.';
 
@@ -66,20 +66,21 @@ export function BubbleCard({ status, refresh }: { status: PermissionStatus | nul
   return (
     <Card style={styles.card}>
       <View style={styles.main}>
-        <View style={styles.preview}>
-          <BrandMark size={32} />
-        </View>
+        <BrandMark size={44} />
         <View style={styles.text}>
           <Text variant="bodyStrong">Floating beam</Text>
-          <View style={styles.status}>
-            {running ? <StatusDot tone="success" /> : null}
-            <Text variant="caption" color={running ? 'success' : 'textSecondary'}>
-              {running ? 'Beam is active over other apps' : 'Off'}
-            </Text>
-          </View>
+          <Text variant="caption" color={running ? 'success' : 'textSecondary'}>
+            {running ? 'Active over other apps' : 'Off'}
+          </Text>
         </View>
-        <Toggle value={running} onValueChange={(on) => void toggle(on)} label="Floating beam" disabled={blocked} />
       </View>
+      <Button
+        variant={running ? 'secondary' : 'primary'}
+        label={running ? 'Turn off' : 'Turn on'}
+        accessibilityLabel={running ? 'Turn off the floating beam' : 'Turn on the floating beam'}
+        onPress={() => void toggle(!running)}
+        disabled={blocked}
+      />
 
       {blocked ? (
         <View style={styles.notice}>
@@ -110,24 +111,11 @@ export function BubbleCard({ status, refresh }: { status: PermissionStatus | nul
   );
 }
 
-const PREVIEW = 56;
-
 const styles = StyleSheet.create({
   card: { gap: space.lg },
   flex: { flex: 1 },
   main: { flexDirection: 'row', alignItems: 'center', gap: space.md },
-  preview: {
-    width: PREVIEW,
-    height: PREVIEW,
-    borderRadius: radius.lg,
-    backgroundColor: colors.primarySoft,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.primarySoftBorder,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   text: { flex: 1, gap: space.xxs },
-  status: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
   notice: {
     flexDirection: 'row',
     alignItems: 'center',
