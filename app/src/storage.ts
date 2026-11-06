@@ -18,6 +18,8 @@ export const KEYS = {
   executed: 'executed:v1',
   pending: 'pending:v1',
   activity: 'activity:v1',
+  /** Last signed-in wallet; when it changes, account-scoped state is cleared. */
+  wallet: 'wallet:v1',
 } as const;
 
 /** Pre-activity single-entry key, migrated into `activity:v1` on first read. */
@@ -90,6 +92,25 @@ export async function writeJson(key: string, value: unknown): Promise<void> {
  * @param key Storage key.
  * @returns Resolves once removed.
  */
+/**
+ * Clears account-scoped local state when the signed-in wallet changes, so a new
+ * account never shows the previous account's activity, limits, recipients or spend.
+ * Device preferences (read-aloud, view network, avatar) are per-device and kept.
+ * @param address Current wallet address.
+ * @returns True when state was reset (the wallet differs from last time).
+ */
+export async function resetLocalIfWalletChanged(address: string): Promise<boolean> {
+  const a = address.toLowerCase();
+  const prev = await readJson(KEYS.wallet, (v): v is string => typeof v === 'string').catch(() => null);
+  if (prev === a) return false;
+  const all = await AsyncStorage.getAllKeys().catch(() => [] as readonly string[]);
+  const scoped = [KEYS.limits, KEYS.recipients, KEYS.names, KEYS.executed, KEYS.pending, KEYS.activity, LEGACY_LAST_TX_KEY];
+  const spend = all.filter((k) => k.startsWith('spend:'));
+  await AsyncStorage.multiRemove([...scoped, ...spend]).catch(() => {});
+  await writeJson(KEYS.wallet, a);
+  return true;
+}
+
 export async function removeKey(key: string): Promise<void> {
   await AsyncStorage.removeItem(key);
 }

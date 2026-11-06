@@ -15,7 +15,7 @@ import { getLimitState, type LimitState } from './limits';
 import type { BeamPayAccount } from './beamPayClient';
 import type { PendingStatus } from './pendingTx';
 import type { ServerStatus } from './serverApi';
-import { getActivity, type ActivityTx } from './storage';
+import { getActivity, resetLocalIfWalletChanged, type ActivityTx } from './storage';
 
 type WalletData = {
   address: Address | null;
@@ -75,9 +75,14 @@ export function WalletDataProvider({ children }: { children: ReactNode }) {
     await Promise.all([recheck(), refreshBalance(), reloadAccount(), reloadLocal()]);
   }, [recheck, refreshBalance, reloadAccount, reloadLocal]);
 
+  // On a new signed-in wallet, clear the previous account's local state, then load.
   useEffect(() => {
-    void reloadLocal();
-  }, [reloadLocal]);
+    if (!address) {
+      void reloadLocal();
+      return;
+    }
+    void resetLocalIfWalletChanged(address).then(() => reloadLocal());
+  }, [address, reloadLocal]);
 
   // A resumed payment just settled: spend, activity and balance changed.
   useEffect(() => {
