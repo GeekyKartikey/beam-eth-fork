@@ -13,7 +13,9 @@ import { PendingBanner, SetupBanner } from '../../src/components/Banner';
 import { BrandMark } from '../../src/components/BrandMark';
 import { NetworkPill } from '../../src/components/NetworkPill';
 import { Screen } from '../../src/components/Screen';
-import { SectionHeader, Text } from '../../src/components/ui';
+import { Card, ListRow, SectionHeader, Text } from '../../src/components/ui';
+import { money } from '../../src/components/format';
+import { NETWORK } from '../../src/config';
 import { HIT, space } from '../../src/theme';
 import { useWalletData } from '../../src/walletData';
 import { useAvatarUri } from '../../src/avatar';
@@ -27,7 +29,7 @@ const AVATAR = 36;
  * @returns The scrollable wallet overview.
  */
 export default function WalletScreen() {
-  const { address, email, balance, balanceError, account, handle, server, pending, recheckPending, activity, refresh } = useWalletData();
+  const { address, email, balance, balanceError, account, handle, server, pending, recheckPending, activity, limits, refresh } = useWalletData();
   const { uri: avatarUri } = useAvatarUri(address);
 
   const header = (
@@ -56,6 +58,20 @@ export default function WalletScreen() {
         <BalanceCard address={address} balance={balance} balanceError={balanceError} cap={account?.cap ?? null} handle={handle} />
         <PendingBanner status={pending} onRecheck={recheckPending} />
       </View>
+      {limits ? (
+        <View>
+          <SectionHeader title="Spending limit" />
+          <Card>
+            <ListRow
+              icon="shield"
+              tone="neutral"
+              title={`${limits.daily} ${NETWORK.symbol} daily`}
+              subtitle={`${money(limits.remainingWei)} left today`}
+              onPress={() => router.navigate('/profile')}
+            />
+          </Card>
+        </View>
+      ) : null}
       <View>
         <SectionHeader title="Recent activity" action={{ label: 'See all', onPress: () => router.navigate('/activity') }} />
         <ActivityList items={activity} pending={pending} limit={RECENT} />
