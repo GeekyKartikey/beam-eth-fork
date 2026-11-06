@@ -475,7 +475,7 @@ export function AskSheet({ ctxId, review, page = false }: { ctxId: string | unde
 
         {empty && page ? chips : null}
         <View
-          style={page ? [styles.pageComposer, { marginBottom: Math.max(insets.bottom, space.xxl) + space.md }] : styles.composer}
+          style={page ? [styles.pageComposer, { marginBottom: insets.bottom + space.md }] : styles.composer}
         >
           {page ? (
             <Pressable

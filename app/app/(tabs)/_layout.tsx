@@ -41,7 +41,7 @@ export default function TabsLayout() {
   return (
     <WalletDataProvider>
       <Tabs
-        tabBar={(props) => <FloatingTabBar {...props} visible={TABS.map((t) => t.name)} hiddenOn={[]} />}
+        tabBar={(props) => <FloatingTabBar {...props} visible={TABS.map((t) => t.name)} hiddenOn={['chat']} />}
         screenOptions={{
           headerShown: false,
           // Screens slide and fade into place when switching tabs.
