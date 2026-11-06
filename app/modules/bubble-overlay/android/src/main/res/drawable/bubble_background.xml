@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Beam disc: flat Beam purple (#6E54FF, no gradient) with a 1dp white ring
+  Beam disc: flat ENS blue (#0080BC, no gradient) with a 1dp white ring
   at 20% opacity to separate it from busy backgrounds. The first layer's oval
   also gives the view its elevation-shadow outline.
 -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
   <item>
     <shape android:shape="oval">
-      <solid android:color="#FF6E54FF" />
+      <solid android:color="#FF0080BC" />
     </shape>
   </item>
   <item>
