@@ -17,7 +17,7 @@ import { WalletDataProvider } from '../../src/walletData';
 
 const TABS: { name: string; title: string; icon: IconName | 'beam' }[] = [
   { name: 'index', title: 'Wallet', icon: 'credit-card' },
-  { name: 'chat', title: 'Ask', icon: 'message-circle' },
+  { name: 'chat', title: 'Ask', icon: 'sparkle' },
   { name: 'bubble', title: 'Beam', icon: 'beam' },
   { name: 'profile', title: 'Profile', icon: 'user' },
 ];
