@@ -25,11 +25,6 @@ const BADGE = 56;
 const QR_SIZE = 200;
 const SIMULATOR_URL = 'https://simulator.worldcoin.org';
 
-const STEPS = {
-  production: ['Open World App', 'Check the request and approve it', 'Come back to Beam. It continues on its own.'],
-  staging: ['Tap "Verify in simulator" (copies the link, opens the simulator)', 'Paste the link in the simulator, then Verify', 'Beam continues on its own'],
-} as const;
-
 type Props = {
   visible: boolean;
   /** What to approve; built by the caller from the intent, cap or wallet. */
@@ -131,7 +126,7 @@ function Waiting({ connectUrl, detail }: { connectUrl: string; detail: string })
     <Button
       key="sim"
       variant="primary"
-      label="Verify in simulator"
+      label="Verify"
       leading={<WorldMark size={18} color={colors.textInverse} />}
       onPress={() => {
         void copy(connectUrl);
@@ -164,50 +159,20 @@ function Waiting({ connectUrl, detail }: { connectUrl: string; detail: string })
   return (
     <>
       <View style={styles.body}>
+        <WorldMark size={40} color={colors.brandWorld} />
         <View style={styles.text} accessibilityLiveRegion="polite">
           <Text variant="headline" align="center">
-            Waiting for World ID…
+            Waiting for World ID
           </Text>
-          {detail ? (
-            <Text variant="callout" color="textSecondary" align="center">
-              {detail}
-            </Text>
-          ) : null}
+          <Text variant="caption" color="textSecondary" align="center">
+            {staging ? 'Paste the copied link in the simulator, then Verify.' : 'Approve in your World App.'}
+          </Text>
         </View>
-        {staging ? (
-          <Pressable
-            accessibilityRole="link"
-            accessibilityLabel="Test mode: verify with the World ID simulator. Opens the simulator."
-            onPress={() => void Linking.openURL(SIMULATOR_URL)}
-            style={({ pressed }) => [styles.note, pressed && styles.notePressed]}
-          >
-            <Icon name="tool" size={14} color={colors.warning} />
-            <Text variant="captionStrong" color="warning" style={styles.flex}>
-              Test mode: verify with the World ID simulator
-            </Text>
-            <Icon name="external-link" size={14} color={colors.warning} />
-          </Pressable>
-        ) : null}
         {qr ? (
           <View style={styles.qrFrame} accessible accessibilityRole="image" accessibilityLabel="QR code of the World ID approval link">
             <ApprovalQr data={connectUrl} />
           </View>
-        ) : (
-          <View style={styles.steps}>
-            {STEPS[staging ? 'staging' : 'production'].map((step, i) => (
-              <View key={step} style={styles.step}>
-                <View style={styles.stepNum}>
-                  <Text variant="captionStrong" color="primary">
-                    {i + 1}
-                  </Text>
-                </View>
-                <Text variant="callout" style={styles.flex}>
-                  {step}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
+        ) : null}
       </View>
       <View style={styles.actions}>{staging ? [elsewhere, verifySim] : [openWorld, elsewhere]}</View>
     </>
