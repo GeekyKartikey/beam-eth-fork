@@ -34,7 +34,7 @@ export default function WalletScreen() {
       <Text variant="headline" accessibilityRole="header" style={styles.flex}>
         Beam
       </Text>
-      <NetworkPill />
+      <NetworkPill toggle />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Open profile"

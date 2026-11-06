@@ -9,7 +9,7 @@ import { ActivityIndicator, Linking, Pressable, StyleSheet, View } from 'react-n
 import type { Address } from 'viem';
 import { NETWORK } from '../config';
 import { shortAddress } from '../intent';
-import { addressUrl } from '../network';
+import { useViewNetwork, viewAddressUrl } from '../viewNetwork';
 import { colors, HIT, radius, space } from '../theme';
 import { money, moneyParts } from './format';
 import { ReceiveSheet } from './ReceiveSheet';
@@ -86,6 +86,7 @@ type Props = {
 export function BalanceCard({ address, balance, balanceError, cap, handle }: Props) {
   const { copied, copy } = useCopy();
   const [receiveOpen, setReceiveOpen] = useState(false);
+  const [view] = useViewNetwork();
   const copyAddress = () => address && void copy(address);
   const open = (url: string) => void Linking.openURL(url);
   const parts = balance !== null ? moneyParts(balance) : null;
@@ -161,15 +162,15 @@ export function BalanceCard({ address, balance, balanceError, cap, handle }: Pro
           icon="droplet"
           label="Faucet"
           a11yLabel={`Get testnet ${NETWORK.symbol} from the faucet`}
-          disabled={!address}
-          onPress={() => open(NETWORK.faucetUrl)}
+          disabled={!address || !view.faucetUrl}
+          onPress={() => view.faucetUrl && open(view.faucetUrl)}
         />
         <QuickAction
           icon="external-link"
           label="Explorer"
           a11yLabel="View wallet on explorer"
           disabled={!address}
-          onPress={() => address && open(addressUrl(NETWORK, address))}
+          onPress={() => address && open(viewAddressUrl(view, address))}
         />
       </View>
 

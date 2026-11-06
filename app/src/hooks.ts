@@ -16,6 +16,7 @@ import type { Address } from 'viem';
 import { validateHandleLabel, type ApprovalRequest, type ApprovalStart, type HandleAvailability } from './api';
 import { runApproval, type ApprovalOutcome } from './approvals';
 import { publicClient } from './chain';
+import { useViewNetwork, viewClient } from './viewNetwork';
 import { config } from './config';
 import { confirmChange } from './deviceAuth';
 import { checkHandle, lookupHandle } from './handles';
@@ -89,7 +90,8 @@ function useLoaded<T>(load: (() => Promise<T>) | null): Loaded<T> {
  * @returns Balance in wei (null until loaded), load error flag and a refresh function.
  */
 export function useBalance(address: Address | null): Loaded<bigint> {
-  const load = useMemo(() => (address ? () => publicClient.getBalance({ address }) : null), [address]);
+  const [view] = useViewNetwork();
+  const load = useMemo(() => (address ? () => viewClient(view).getBalance({ address }) : null), [address, view]);
   return useLoaded(load);
 }
 
