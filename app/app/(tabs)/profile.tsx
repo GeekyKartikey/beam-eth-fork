@@ -10,7 +10,7 @@ import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '../../src/components/Avatar';
-import { pickAndUploadAvatar, useAvatarUri } from '../../src/avatar';
+import { pickAndUploadAvatar, useAvatarUri, type AvatarResult } from '../../src/avatar';
 import { HandleRow, WorldIdRow } from '../../src/components/IdentityRows';
 import { LimitsCard } from '../../src/components/LimitsCard';
 import { NetworkPill } from '../../src/components/NetworkPill';
@@ -86,9 +86,10 @@ export default function ProfileScreen() {
   const changeAvatar = async () => {
     if (!address || uploading) return;
     setUploading(true);
-    const ok = await pickAndUploadAvatar(address).catch(() => false);
+    const result = await pickAndUploadAvatar(address).catch((): AvatarResult => 'failed');
     setUploading(false);
-    if (ok) reloadAvatar();
+    if (result === 'uploaded') reloadAvatar();
+    else if (result === 'failed') Alert.alert('Upload failed', 'Could not upload the photo. Check your connection and try again.');
   };
 
   const confirmSignOut = () =>

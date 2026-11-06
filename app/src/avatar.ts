@@ -27,18 +27,25 @@ export function useAvatarUri(address: string | null): { uri: string | null; relo
   return { uri, reload };
 }
 
+/** Outcome of an avatar pick-and-upload. */
+export type AvatarResult = 'uploaded' | 'cancelled' | 'failed';
+
 /**
  * Lets the user pick an image and uploads it as the wallet's avatar.
+ *
+ * Uses the system photo picker (no media permission needed on Android 13+ / iOS),
+ * so it never gates on a runtime permission that the manifest may not declare.
  * @param address Wallet the avatar belongs to.
- * @returns True on a successful upload, false if cancelled, denied or failed.
+ * @returns `uploaded` on success, `cancelled` if the user backed out, `failed` on error.
  */
-export async function pickAndUploadAvatar(address: string): Promise<boolean> {
-  if (!config.agentUrl) return false;
-  const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  if (!perm.granted) return false;
-  const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.7 });
-  const asset = picked.canceled ? null : picked.assets[0];
-  if (!asset) return false;
+export async function pickAndUploadAvatar(address: string): Promise<AvatarResult> {
+  if (!config.agentUrl) return 'failed';
+  const picked = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.7 }).catch(
+    () => null,
+  );
+  if (!picked || picked.canceled) return 'cancelled';
+  const asset = picked.assets?.[0];
+  if (!asset) return 'cancelled';
 
   const form = new FormData();
   form.append('wallet', address);
@@ -49,7 +56,7 @@ export async function pickAndUploadAvatar(address: string): Promise<boolean> {
     headers: { Authorization: `Bearer ${config.agentToken}` },
     body: form,
   }).catch(() => null);
-  if (!res || !res.ok) return false;
+  if (!res || !res.ok) return 'failed';
   await writeJson(key(address), Date.now());
-  return true;
+  return 'uploaded';
 }
