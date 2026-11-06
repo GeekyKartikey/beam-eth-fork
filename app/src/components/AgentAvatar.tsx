@@ -17,7 +17,7 @@ import { Text } from './ui';
 export function BrandLogo({ brand, size }: { brand: AgentBrand; size: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <Path d={brand.path} fill={brand.color} />
+      <Path d={brand.path} fill={brand.color} fillRule="evenodd" />
     </Svg>
   );
 }
