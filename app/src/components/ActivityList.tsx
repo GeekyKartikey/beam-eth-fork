@@ -99,7 +99,7 @@ export function ActivityList({
   if (rows.length === 0) {
     return (
       <Card style={styles.empty}>
-        <Icon name="smiley-sad" size={44} color={colors.textTertiary} />
+        <Icon name="currency-dollar" size={32} color={colors.text} />
         <Text variant="headline" align="center">
           No payments yet
         </Text>
