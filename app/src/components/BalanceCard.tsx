@@ -1,6 +1,6 @@
 /**
  * @file Wallet tab balance card: flat white card with the balance ("$124.50
- * USDC" on Arc), the onchain per-payment cap, a copyable address chip and four
+ * USDC" on Arc), the per-payment cap, a centered copyable address chip and four
  * quick actions (Receive, Copy, Faucet, Explorer). Receive opens the QR sheet.
  */
 import { Icon } from './Icon';
@@ -110,12 +110,9 @@ export function BalanceCard({ address, balance, balanceError, cap, handle }: Pro
           <View style={styles.placeholder} accessible accessibilityLabel="Balance loading" />
         )}
         {cap !== null ? (
-          <View style={styles.inline} accessible accessibilityLabel={`Per payment cap ${money(cap)}, protected onchain`}>
-            <Icon name="lock" size={13} color={colors.textTertiary} />
-            <Text variant="caption" color="textSecondary">
-              Per payment cap {money(cap)} · protected onchain
-            </Text>
-          </View>
+          <Text variant="caption" color="textSecondary" accessibilityLabel={`Per payment cap ${money(cap)}`}>
+            Per payment cap {money(cap)}
+          </Text>
         ) : null}
         {balanceError ? (
           <View style={styles.inline} accessibilityLiveRegion="polite">
@@ -190,6 +187,7 @@ const styles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'center',
     gap: space.sm,
     minHeight: 36,
     paddingHorizontal: space.md,
