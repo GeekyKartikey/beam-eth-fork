@@ -46,6 +46,7 @@ function toRows(items: ActivityTx[], pending: PendingStatus): Row[] {
 function ActivityRow({ row, divider }: { row: Row; divider: boolean }) {
   const s = STATUS[row.status];
   const amount = `−${formatAmount(BigInt(row.amountWei), NETWORK)}`;
+  const amountText = amount.replace(/\sUSDC$/, '');
   const when = timeAgo(row.at);
   const who = row.toName ?? shortAddress(row.to);
   return (
@@ -59,9 +60,12 @@ function ActivityRow({ row, divider }: { row: Row; divider: boolean }) {
       onPress={() => void Linking.openURL(txUrl(NETWORK, row.hash))}
       trailing={
         <View style={styles.trailing}>
-          <Text variant="amount" color={row.status === 'confirmed' ? 'text' : 'textTertiary'}>
-            {amount}
-          </Text>
+          <View style={styles.amountRow}>
+            <Text variant="amount" color={row.status === 'confirmed' ? 'text' : 'textTertiary'}>
+              {amountText}
+            </Text>
+            <UsdcMark size={16} />
+          </View>
           {row.status !== 'confirmed' ? <Pill label={s.label} tone={s.tone} /> : null}
         </View>
       }
@@ -124,6 +128,7 @@ export function ActivityList({
 const styles = StyleSheet.create({
   list: { paddingVertical: space.xs },
   trailing: { alignItems: 'flex-end', gap: space.xs },
+  amountRow: { flexDirection: 'row', alignItems: 'center', gap: space.xxs },
   empty: { alignItems: 'center', gap: space.sm, paddingVertical: space.xxl, paddingHorizontal: space.xxl },
   emptyAction: { marginTop: space.sm },
 });
