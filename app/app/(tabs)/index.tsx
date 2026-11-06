@@ -16,6 +16,7 @@ import { Screen } from '../../src/components/Screen';
 import { SectionHeader, Text } from '../../src/components/ui';
 import { HIT, space } from '../../src/theme';
 import { useWalletData } from '../../src/walletData';
+import { useAvatarUri } from '../../src/avatar';
 
 /** Payments shown before "See all". */
 const RECENT = 3;
@@ -27,6 +28,7 @@ const AVATAR = 36;
  */
 export default function WalletScreen() {
   const { address, email, balance, balanceError, account, handle, server, pending, recheckPending, activity, refresh } = useWalletData();
+  const { uri: avatarUri } = useAvatarUri(address);
 
   const header = (
     <View style={styles.header}>
@@ -42,7 +44,7 @@ export default function WalletScreen() {
         hitSlop={(HIT - AVATAR) / 2}
         style={({ pressed }) => [styles.avatar, pressed && styles.pressed]}
       >
-        <Avatar email={email} size={AVATAR} />
+        <Avatar email={email} size={AVATAR} uri={avatarUri} />
       </Pressable>
     </View>
   );

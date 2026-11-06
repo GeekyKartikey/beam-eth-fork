@@ -7,9 +7,10 @@ import { Icon } from '../../src/components/Icon';
 import { usePrivy } from '@privy-io/expo';
 import Constants from 'expo-constants';
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
-import { Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
 import { Avatar } from '../../src/components/Avatar';
+import { pickAndUploadAvatar, useAvatarUri } from '../../src/avatar';
 import { HandleRow, WorldIdRow } from '../../src/components/IdentityRows';
 import { LimitsCard } from '../../src/components/LimitsCard';
 import { NetworkPill } from '../../src/components/NetworkPill';
@@ -78,7 +79,17 @@ export default function ProfileScreen() {
   const { beamPay } = config;
   const { copied, copy } = useCopy();
   const [readAloud, setReadAloud] = useReadAloud();
+  const { uri: avatarUri, reload: reloadAvatar } = useAvatarUri(address);
+  const [uploading, setUploading] = useState(false);
   const version = Constants.expoConfig?.version ?? '1.0.0';
+
+  const changeAvatar = async () => {
+    if (!address || uploading) return;
+    setUploading(true);
+    const ok = await pickAndUploadAvatar(address).catch(() => false);
+    setUploading(false);
+    if (ok) reloadAvatar();
+  };
 
   const confirmSignOut = () =>
     Alert.alert('Sign out?', 'Sign in again with the same email to get back to this wallet.', [
@@ -89,7 +100,19 @@ export default function ProfileScreen() {
   return (
     <Screen title="Profile">
       <Card style={styles.account}>
-        <Avatar email={email} size={56} />
+        <Pressable
+          onPress={() => void changeAvatar()}
+          disabled={!address || uploading}
+          accessibilityRole="button"
+          accessibilityLabel="Change profile photo"
+          hitSlop={space.xs}
+          style={({ pressed }) => [styles.avatarWrap, pressed && styles.pressed]}
+        >
+          <Avatar email={email} size={56} uri={avatarUri} />
+          <View style={styles.avatarBadge}>
+            {uploading ? <ActivityIndicator size="small" color={colors.textInverse} /> : <Icon name="camera" size={12} color={colors.textInverse} />}
+          </View>
+        </Pressable>
         <View style={styles.flex}>
           <Text variant="headline" numberOfLines={1} ellipsizeMode="middle">
             {email ?? 'Privy account'}
@@ -220,6 +243,20 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1, gap: space.xs },
   account: { flexDirection: 'row', alignItems: 'center', gap: space.lg },
+  avatarWrap: { position: 'relative' },
+  avatarBadge: {
+    position: 'absolute',
+    right: -2,
+    bottom: -2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.surface,
+  },
   address: { flexDirection: 'row', alignItems: 'center', gap: space.sm, alignSelf: 'flex-start' },
   pressed: { opacity: 0.6 },
   group: { paddingVertical: space.xs },

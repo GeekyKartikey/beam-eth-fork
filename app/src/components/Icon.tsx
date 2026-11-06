@@ -65,6 +65,7 @@ import WifiSlash from 'phosphor-react-native/lib/module/icons/WifiSlash';
 import X from 'phosphor-react-native/lib/module/icons/X';
 import XCircle from 'phosphor-react-native/lib/module/icons/XCircle';
 import Circle from 'phosphor-react-native/lib/module/icons/Circle';
+import Camera from 'phosphor-react-native/lib/module/icons/Camera';
 import FileText from 'phosphor-react-native/lib/module/icons/FileText';
 import GridFour from 'phosphor-react-native/lib/module/icons/GridFour';
 import ListBullets from 'phosphor-react-native/lib/module/icons/ListBullets';
@@ -74,6 +75,7 @@ import Wrench from 'phosphor-react-native/lib/module/icons/Wrench';
 const ICONS = {
   circle: Circle,
   'file-text': FileText,
+  camera: Camera,
   grid: GridFour,
   list: ListBullets,
   tool: Wrench,

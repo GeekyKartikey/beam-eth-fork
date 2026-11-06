@@ -10,6 +10,7 @@ import { Hono, type MiddlewareHandler } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { existsSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 import { anthropicCreateMessage, runAgent, type AgentDeps } from './agent';
@@ -17,6 +18,7 @@ import { createApprovals, type Approvals } from './approvals/routes';
 import { createSessionStore } from './approvals/sessions';
 import { createApprover } from './approvals/signer';
 import { createWorldId } from './approvals/worldId';
+import { createProfileRoutes } from './profile/routes';
 import { createChainClient, createEnsClient } from './chain';
 import { loadServerConfig } from './config';
 import { loadHandlesConfig, type HandlesConfig } from './handles/config';
@@ -41,6 +43,8 @@ export type AppDeps = AgentDeps & {
   /** Whether handle claims can actually be made (handles configured). */
   handlesEnabled: boolean;
   ensChainId: number;
+  /** Folder for uploaded profile avatars; defaults to `uploads`. */
+  uploadsDir?: string;
   /** Clock for the rate limiter; injectable for tests. */
   now?: () => number;
   /** Receives one JSON line per request. */
@@ -150,6 +154,7 @@ export function createApp(deps: AppDeps): Hono<Env> {
 
   app.route('/v1/approvals', deps.approvals.routes);
   if (deps.handleRoutes) app.route('/v1/handles', deps.handleRoutes);
+  app.route('/profile', createProfileRoutes({ agentToken: deps.agentToken, uploadsDir: deps.uploadsDir ?? 'uploads' }));
 
   app.onError((err, c) => {
     c.set('log', { errors: [err.name] });
@@ -162,6 +167,7 @@ export function createApp(deps: AppDeps): Hono<Env> {
 /** Reads env, refuses unsafe config, and starts listening. */
 async function main(): Promise<void> {
   if (existsSync('.env')) process.loadEnvFile('.env');
+  await mkdir('uploads', { recursive: true });
   const loaded = await loadServerConfig(process.env);
   if (!loaded.ok) {
     console.error(`Refusing to start:\n- ${loaded.errors.join('\n- ')}`);

@@ -8,3 +8,6 @@ app/ios/
 .expo/
 *.log
 .DS_Store
+
+# Uploaded profile avatars (runtime data)
+server/uploads/
