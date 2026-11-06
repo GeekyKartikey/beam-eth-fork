@@ -47,7 +47,7 @@ export function BrandMark({ size, variant = 'color' }: { size: number; variant?:
   const offset = (TILE - GLYPH_SIZE) / 2;
   return (
     <Svg width={size} height={size} viewBox={`0 0 ${TILE} ${TILE}`} {...A11Y_HIDDEN}>
-      <Rect width={TILE} height={TILE} rx={TILE_RADIUS} fill={colors.primary} />
+      <Rect width={TILE} height={TILE} rx={TILE_RADIUS} fill={colors.brandEns} />
       <Path d={BEAM_PATH} x={offset} y={offset} scale={GLYPH_SIZE / BEAM_GRID} fill={colors.textInverse} fillRule="evenodd" />
     </Svg>
   );
