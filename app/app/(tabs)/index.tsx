@@ -14,9 +14,11 @@ import { BrandMark } from '../../src/components/BrandMark';
 import { NetworkPill } from '../../src/components/NetworkPill';
 import { Screen } from '../../src/components/Screen';
 import { Card, ListRow, SectionHeader, Text } from '../../src/components/ui';
+import { Icon } from '../../src/components/Icon';
+import { EnsMark } from '../../src/components/logos';
 import { money } from '../../src/components/format';
 import { NETWORK } from '../../src/config';
-import { HIT, space } from '../../src/theme';
+import { colors, HIT, radius, space } from '../../src/theme';
 import { useWalletData } from '../../src/walletData';
 import { useAvatarUri } from '../../src/avatar';
 
@@ -55,6 +57,23 @@ export default function WalletScreen() {
     <Screen header={header} onRefresh={refresh}>
       <View style={styles.top}>
         <SetupBanner server={server} />
+        {handle === null ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Claim your ENS handle"
+            onPress={() => router.navigate('/profile')}
+            style={({ pressed }) => [styles.ensBanner, pressed && styles.pressed]}
+          >
+            <EnsMark size={30} />
+            <View style={styles.flex}>
+              <Text variant="bodyStrong">Claim your ENS</Text>
+              <Text variant="caption" color="textSecondary">
+                Get a free name like you.beamfi.eth, so people can pay you by name.
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={18} color={colors.textTertiary} />
+          </Pressable>
+        ) : null}
         <BalanceCard address={address} balance={balance} balanceError={balanceError} cap={account?.cap ?? null} handle={handle} />
         <PendingBanner status={pending} onRecheck={recheckPending} />
       </View>
@@ -86,4 +105,14 @@ const styles = StyleSheet.create({
   avatar: { marginLeft: space.xs },
   pressed: { opacity: 0.7 },
   top: { gap: space.md },
+  ensBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.md,
+    padding: space.lg,
+    borderRadius: radius.lg,
+    backgroundColor: colors.primarySoft,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.primarySoftBorder,
+  },
 });

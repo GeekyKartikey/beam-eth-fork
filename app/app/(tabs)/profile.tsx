@@ -5,7 +5,6 @@
  */
 import { Icon } from '../../src/components/Icon';
 import { usePrivy } from '@privy-io/expo';
-import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Alert, Linking, Pressable, StyleSheet, View } from 'react-native';
@@ -81,7 +80,6 @@ export default function ProfileScreen() {
   const [readAloud, setReadAloud] = useReadAloud();
   const { uri: avatarUri, reload: reloadAvatar } = useAvatarUri(address);
   const [uploading, setUploading] = useState(false);
-  const version = Constants.expoConfig?.version ?? '1.0.0';
 
   const changeAvatar = async () => {
     if (!address || uploading) return;
@@ -217,14 +215,6 @@ export default function ProfileScreen() {
           />
         </Card>
       </View>
-
-      <Group
-        title="About"
-        rows={[
-          { icon: 'info', title: 'Version', value: version },
-          { icon: 'eye', title: 'Privacy', subtitle: 'Your screen is read only when you tap the beam' },
-        ]}
-      />
 
       <Pressable
         accessibilityRole="button"
