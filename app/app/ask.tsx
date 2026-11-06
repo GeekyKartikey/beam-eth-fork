@@ -23,6 +23,7 @@ import {
   BackHandler,
   Easing,
   KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -530,7 +531,10 @@ export function AskSheet({ ctxId, review, page = false }: { ctxId: string | unde
 
   if (page) {
     return (
-      <KeyboardAvoidingView behavior="padding" style={[styles.page, { paddingTop: insets.top + space.xs }]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={[styles.page, { paddingTop: insets.top + space.xs }]}
+      >
         <View style={styles.pageHeader}>
           <Pressable
             accessibilityRole="button"
