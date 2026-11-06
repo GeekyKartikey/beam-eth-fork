@@ -1,7 +1,11 @@
 /**
  * @file Profile avatar: pick an image, upload it to the server, and the URL to
  * show it. The image lives on the server (`/profile/avatar/<wallet>`); the device
- * only keeps a version stamp so the cached image refreshes after a new upload.
+ * keeps a version stamp so the cached image refreshes after a new upload.
+ *
+ * The version is a small shared store with listeners, so one upload updates every
+ * avatar on screen at once (the Wallet header, Profile, anywhere else) without a
+ * remount, and it is hydrated from storage so it survives a restart.
  */
 import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useEffect, useState } from 'react';
@@ -11,19 +15,53 @@ import { readJson, writeJson } from './storage';
 const key = (address: string) => `avatar:${address.toLowerCase()}`;
 const isVersion = (v: unknown): v is number => typeof v === 'number';
 
+/** address(lowercased) -> version stamp of its current avatar. */
+const versions = new Map<string, number>();
+/** Addresses already read from storage, so we hydrate each once. */
+const hydrated = new Set<string>();
+const listeners = new Set<() => void>();
+const notify = () => listeners.forEach((l) => l());
+
 /**
- * The server URL for a wallet's avatar, cache-busted by the local version stamp.
+ * Records a new avatar version for a wallet: updates every live avatar and persists it.
+ * @param address Wallet the avatar belongs to.
+ * @param version Version stamp (an upload time).
+ * @returns Resolves once stored.
+ */
+export async function setAvatarVersion(address: string, version: number): Promise<void> {
+  const a = address.toLowerCase();
+  versions.set(a, version);
+  hydrated.add(a);
+  notify();
+  await writeJson(key(address), version);
+}
+
+/**
+ * The server URL for a wallet's avatar, cache-busted by the shared version stamp.
+ * Re-renders whenever any avatar upload happens, so it stays in sync across screens.
  * @param address Wallet address, or null when signed out.
- * @returns The image URL (null when none has been uploaded on this device) and a reload.
+ * @returns The image URL (null when none has been uploaded) and a manual reload.
  */
 export function useAvatarUri(address: string | null): { uri: string | null; reload: () => void } {
-  const [version, setVersion] = useState<number | null>(null);
-  const reload = useCallback(() => {
-    if (address) void readJson(key(address), isVersion).then((v) => setVersion(v ?? null));
-    else setVersion(null);
+  const [, bump] = useState(0);
+  useEffect(() => {
+    const l = () => bump((n) => n + 1);
+    listeners.add(l);
+    const a = address?.toLowerCase();
+    if (a && !hydrated.has(a)) {
+      hydrated.add(a);
+      void readJson(key(a), isVersion).then((v) => {
+        if (v) {
+          versions.set(a, v);
+          notify();
+        }
+      });
+    }
+    return () => void listeners.delete(l);
   }, [address]);
-  useEffect(reload, [reload]);
-  const uri = address && version && config.agentUrl ? `${config.agentUrl}/profile/avatar/${address}?v=${version}` : null;
+  const reload = useCallback(() => bump((n) => n + 1), []);
+  const v = address ? versions.get(address.toLowerCase()) : undefined;
+  const uri = address && v && config.agentUrl ? `${config.agentUrl}/profile/avatar/${address}?v=${v}` : null;
   return { uri, reload };
 }
 
@@ -57,6 +95,6 @@ export async function pickAndUploadAvatar(address: string): Promise<AvatarResult
     body: form,
   }).catch(() => null);
   if (!res || !res.ok) return 'failed';
-  await writeJson(key(address), Date.now());
+  await setAvatarVersion(address, Date.now());
   return 'uploaded';
 }
