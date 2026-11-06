@@ -5,12 +5,12 @@
  */
 import { ActivityIndicator, Linking, StyleSheet, View } from 'react-native';
 import { NETWORK } from '../config';
-import { shortAddress } from '../intent';
+import { formatAmount, shortAddress } from '../intent';
 import { txUrl } from '../network';
 import type { PendingStatus } from '../pendingTx';
 import type { ActivityTx } from '../storage';
 import { colors, space } from '../theme';
-import { money, timeAgo } from './format';
+import { timeAgo } from './format';
 import { UsdcMark } from './logos';
 import { Button, Card, ListRow, Pill, Text, type Tone } from './ui';
 
@@ -45,7 +45,7 @@ function toRows(items: ActivityTx[], pending: PendingStatus): Row[] {
  */
 function ActivityRow({ row, divider }: { row: Row; divider: boolean }) {
   const s = STATUS[row.status];
-  const amount = `−${money(BigInt(row.amountWei))}`;
+  const amount = `−${formatAmount(BigInt(row.amountWei), NETWORK)}`;
   const when = timeAgo(row.at);
   const who = row.toName ?? shortAddress(row.to);
   return (
