@@ -11,7 +11,8 @@ import type { PendingStatus } from '../pendingTx';
 import type { ActivityTx } from '../storage';
 import { colors, space } from '../theme';
 import { money, timeAgo } from './format';
-import { Button, Card, IconTile, ListRow, Pill, Text, type Tone } from './ui';
+import { Icon } from './Icon';
+import { Button, Card, ListRow, Pill, Text, type Tone } from './ui';
 
 type RowStatus = ActivityTx['status'] | 'pending' | 'unknown';
 type Row = Omit<ActivityTx, 'status'> & { status: RowStatus };
@@ -98,7 +99,7 @@ export function ActivityList({
   if (rows.length === 0) {
     return (
       <Card style={styles.empty}>
-        <IconTile icon="send" tone="primary" size={48} />
+        <Icon name="send" size={44} color={colors.textSecondary} />
         <Text variant="headline" align="center">
           No payments yet
         </Text>
