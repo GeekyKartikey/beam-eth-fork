@@ -151,6 +151,13 @@ export default function ProfileScreen() {
         </Card>
       </View>
 
+      <View>
+        <SectionHeader title="Security" />
+        <Card style={styles.group}>
+          <WorldIdRow address={address} account={account} accountError={accountError} server={server} onLinked={() => void reloadAccount()} />
+        </Card>
+      </View>
+
       <LimitsCard
         state={limits}
         address={address}
@@ -158,17 +165,6 @@ export default function ProfileScreen() {
         world={worldOf(server)}
         onSaved={() => void reloadLocal()}
         onCapChanged={() => void reloadAccount()}
-      />
-
-      <Group
-        title="Security"
-        leading={
-          <WorldIdRow address={address} account={account} accountError={accountError} server={server} onLinked={() => void reloadAccount()} />
-        }
-        rows={[
-          { icon: 'lock', title: 'Payment approval', subtitle: 'Payments need your fingerprint or device PIN' },
-          { icon: 'shield', title: 'Keys stay on this device', subtitle: 'Your wallet signs payments on this phone' },
-        ]}
       />
 
       <Group
