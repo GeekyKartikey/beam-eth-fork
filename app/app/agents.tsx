@@ -1,26 +1,38 @@
 /**
- * @file Agents screen: connect an AI agent to Beam over MCP, and the one rule
- * that governs it — every agent payment needs this human's World ID approval.
+ * @file Agents screen: connect an AI agent to Beam over MCP, the tools it gets,
+ * and the one rule — every agent payment needs this human's World ID approval.
  *
- * Read-only and additive on Beam's real flow (MCP server + World ID approvals
- * + BeamPay on Arc). No agent registry: the MCP server is stdio/local, so the
- * connection method is the command below, not a URL. The World ID state is the
- * same onchain signal Security uses (`BeamPayAccount.linked`), not the server
- * mode, so it never contradicts a wallet that is already linked.
+ * Beam's MCP is a local stdio server (`server`, name "beam"), so connecting is an
+ * MCP config entry, not a URL or API key. World ID state is the same onchain
+ * signal Security uses (`BeamPayAccount.linked`).
  */
 import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { AgentAvatar } from '../src/components/AgentAvatar';
-import { AGENT_BRANDS } from '../src/components/agentLogos';
 import { Icon } from '../src/components/Icon';
 import { Screen } from '../src/components/Screen';
 import { useCopy } from '../src/components/useCopy';
-import { Card, ListRow, Pill, SectionHeader, Text } from '../src/components/ui';
+import { Card, ListRow, SectionHeader, Text, type IconName } from '../src/components/ui';
 import { useBeamPayAccount, useWallet } from '../src/hooks';
 import { colors, radius, space } from '../src/theme';
 
-/** How an agent connects: Beam's MCP server runs locally over stdio. */
-const MCP_COMMAND = 'cd server && npm run mcp';
+/** Paste into an agent's MCP config (Claude Desktop, Cursor, Codex...). Beam's MCP is local stdio. */
+const MCP_CONFIG = `{
+  "mcpServers": {
+    "beam": {
+      "command": "npm",
+      "args": ["run", "mcp"],
+      "cwd": "server"
+    }
+  }
+}`;
+
+/** The tools Beam exposes to a connected agent. */
+const TOOLS: { icon: IconName; title: string; subtitle: string }[] = [
+  { icon: 'send', title: 'prepare_payment', subtitle: 'Propose a USDC payment you approve on your phone' },
+  { icon: 'search', title: 'inspect_recipient', subtitle: 'Check a 0x address or ENS name before paying' },
+  { icon: 'credit-card', title: 'get_wallet_balance', subtitle: 'Read your Arc USDC balance' },
+  { icon: 'clock', title: 'get_tx_status', subtitle: "Check a payment's status" },
+];
 
 /**
  * Agents screen.
@@ -44,49 +56,49 @@ export default function AgentsScreen() {
         <Icon name="chevron-left" size={24} color={colors.text} />
       </Pressable>
       <Text variant="headline">Agents</Text>
-      {linked ? <Pill label="World ID linked" tone="success" dot /> : <View style={styles.back} />}
+      <View style={styles.back} />
     </View>
   );
 
   return (
     <Screen header={header}>
       <Text variant="callout" color="textSecondary" style={styles.lede}>
-        Let an AI agent request payments. USDC settles on Arc, World ID approves, ENS names resolve.
+        Connect an AI agent to Beam. It can propose payments; you approve each one with World ID, and USDC settles on Arc.
       </Text>
 
       <View style={styles.section}>
         <SectionHeader title="Works with" />
         <Card>
-          <View style={styles.brands}>
-            {AGENT_BRANDS.map((b) => (
-              <View key={b.id} style={styles.brand}>
-                <AgentAvatar name={b.label} size={48} />
-                <Text variant="caption" color="textSecondary" numberOfLines={1}>
-                  {b.label}
-                </Text>
-              </View>
-            ))}
-          </View>
+          <ListRow icon="cpu" tone="neutral" title="Any MCP client" subtitle="Claude, Claude Code, Cursor, Codex — anything that speaks MCP." />
         </Card>
       </View>
 
       <View style={styles.section}>
-        <SectionHeader title="Setup" />
-        <Card>
-          <Text variant="caption" color="textSecondary" style={styles.setupNote}>
-            Run Beam's MCP server, then add it to your agent (Claude Desktop, Codex, Cursor).
+        <SectionHeader title="Connect" />
+        <Card style={styles.connect}>
+          <Text variant="caption" color="textSecondary">
+            Add this to your agent's MCP config. Beam's MCP runs locally over stdio, so there is no URL or API key.
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={copied ? 'Command copied' : `Copy command ${MCP_COMMAND}`}
-            onPress={() => void copy(MCP_COMMAND)}
+            accessibilityLabel={copied ? 'MCP config copied' : 'Copy MCP config'}
+            onPress={() => void copy(MCP_CONFIG)}
             style={({ pressed }) => [styles.code, pressed && styles.pressed]}
           >
-            <Text variant="mono" style={styles.codeText} numberOfLines={1}>
-              {MCP_COMMAND}
+            <Text variant="mono" style={styles.codeText}>
+              {MCP_CONFIG}
             </Text>
             <Icon name={copied ? 'check' : 'copy'} size={16} color={copied ? colors.success : colors.textTertiary} />
           </Pressable>
+        </Card>
+      </View>
+
+      <View style={styles.section}>
+        <SectionHeader title="Tools" />
+        <Card>
+          {TOOLS.map((t, i) => (
+            <ListRow key={t.title} icon={t.icon} tone="neutral" title={t.title} subtitle={t.subtitle} divider={i > 0} />
+          ))}
         </Card>
       </View>
 
@@ -98,9 +110,7 @@ export default function AgentsScreen() {
             tone={linked ? 'success' : 'neutral'}
             title={linked ? 'World ID linked' : 'Set up World ID'}
             subtitle={
-              linked
-                ? 'Every agent payment needs your approval here.'
-                : 'Link once in Profile; then every agent payment needs your approval.'
+              linked ? 'Every agent payment needs your approval here.' : 'Link once in Profile; then every agent payment needs your approval.'
             }
             onPress={linked ? undefined : () => router.navigate('/profile')}
             trailing={linked ? <Icon name="check-circle" size={20} color={colors.success} /> : undefined}
@@ -124,12 +134,10 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.6 },
   lede: { marginTop: space.xs },
   section: { gap: space.xs },
-  brands: { flexDirection: 'row', flexWrap: 'wrap', rowGap: space.lg, columnGap: space.sm },
-  brand: { width: '25%', alignItems: 'center', gap: space.xs },
-  setupNote: { marginBottom: space.sm },
+  connect: { gap: space.sm },
   code: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: space.sm,
     padding: space.md,
