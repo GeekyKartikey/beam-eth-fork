@@ -99,7 +99,7 @@ export function ActivityList({
   if (rows.length === 0) {
     return (
       <Card style={styles.empty}>
-        <UsdcMark size={48} />
+        <UsdcMark size={36} />
         <Text variant="headline" align="center">
           No payments yet
         </Text>
