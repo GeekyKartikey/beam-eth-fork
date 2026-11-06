@@ -27,7 +27,7 @@ const SIMULATOR_URL = 'https://simulator.worldcoin.org';
 
 const STEPS = {
   production: ['Open World App', 'Check the request and approve it', 'Come back to Beam. It continues on its own.'],
-  staging: ['Copy the link or show the QR code', 'Paste or scan it in the World ID simulator', 'Approve there. Beam continues on its own.'],
+  staging: ['Tap "Verify in simulator" (copies the link, opens the simulator)', 'Paste the link in the simulator, then Verify', 'Beam continues on its own'],
 } as const;
 
 type Props = {
@@ -127,6 +127,18 @@ function Waiting({ connectUrl, detail }: { connectUrl: string; detail: string })
       onPress={() => void Linking.openURL(connectUrl)}
     />
   );
+  const verifySim = (
+    <Button
+      key="sim"
+      variant="primary"
+      label="Verify in simulator"
+      leading={<WorldMark size={18} color={colors.textInverse} />}
+      onPress={() => {
+        void copy(connectUrl);
+        void Linking.openURL(SIMULATOR_URL);
+      }}
+    />
+  );
   const elsewhere = (
     <View key="elsewhere" style={styles.row}>
       <Button
@@ -197,7 +209,7 @@ function Waiting({ connectUrl, detail }: { connectUrl: string; detail: string })
           </View>
         )}
       </View>
-      <View style={styles.actions}>{staging ? [elsewhere, openWorld] : [openWorld, elsewhere]}</View>
+      <View style={styles.actions}>{staging ? [elsewhere, verifySim] : [openWorld, elsewhere]}</View>
     </>
   );
 }
