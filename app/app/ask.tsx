@@ -34,10 +34,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BubbleOverlay } from '../modules/bubble-overlay';
 import { planTurn, type AgentContext, type AgentErrorKind, type ChatTurn, type Clarification } from '../src/agentApi';
 import { paymentLevel, type Assessment } from '../src/risk';
-import { getReadAloud, paymentSpeech, speak, verdictSpeech } from '../src/voice';
+import { getReadAloud, paymentSpeech, speak, stopSpeaking, verdictSpeech } from '../src/voice';
 import { decodeReviewLink, type ReviewLinkPayload } from '../src/api';
 import { PendingBanner, SetupBanner } from '../src/components/Banner';
-import { BrandMark } from '../src/components/BrandMark';
+import { BeamGlyph, BrandMark } from '../src/components/BrandMark';
 import { ContextChip, type CapturedContext, type ContextState } from '../src/components/ContextChip';
 import { IntentCard } from '../src/components/IntentCard';
 import { SafetyCard, SIGNAL_COPY } from '../src/components/RiskVerdict';
@@ -212,6 +212,7 @@ export function AskSheet({ ctxId, review, page = false }: { ctxId: string | unde
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<ScrollView>(null);
+  const inputRef = useRef<TextInput>(null);
   const progress = useRef(new Animated.Value(0)).current;
   const closing = useRef(false);
 
@@ -388,36 +389,53 @@ export function AskSheet({ ctxId, review, page = false }: { ctxId: string | unde
       </View>
     );
   } else {
+    const empty = turns.length === 0 && review === undefined;
+    const chips = (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        style={[styles.quickScroll, page && styles.quickScrollPage]}
+        contentContainerStyle={styles.quick}
+      >
+        {QUICK_ACTIONS.map((a) => (
+          <SuggestionChip key={a.label} label={a.label} icon={a.icon} onPress={() => void send(a.label)} />
+        ))}
+      </ScrollView>
+    );
     body = (
       <>
         <ScrollView
           ref={scrollRef}
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
+          style={page ? styles.scrollPage : styles.scroll}
+          contentContainerStyle={[styles.scrollContent, page && empty && styles.pageEmpty]}
           keyboardShouldPersistTaps="handled"
           onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: true })}
         >
           <SetupBanner server={server} />
           <PendingBanner status={pending.status} onRecheck={() => void pending.recheck()} />
-          <ContextChip
-            state={context}
-            excluded={excluded}
-            onExcludedChange={setExcluded}
-            onUseClipboard={() => void readClipboard()}
-            clipboardError={clipboardError}
-          />
-          {turns.length === 0 && review === undefined ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              keyboardShouldPersistTaps="handled"
-              style={styles.quickScroll}
-              contentContainerStyle={styles.quick}
-            >
-              {QUICK_ACTIONS.map((a) => (
-                <SuggestionChip key={a.label} label={a.label} icon={a.icon} onPress={() => void send(a.label)} />
-              ))}
-            </ScrollView>
+          {review !== undefined || (page && context.kind !== 'captured') ? null : (
+            <ContextChip
+              state={context}
+              excluded={excluded}
+              onExcludedChange={setExcluded}
+              onUseClipboard={() => void readClipboard()}
+              clipboardError={clipboardError}
+            />
+          )}
+          {empty && !page ? chips : null}
+          {empty && page ? (
+            <View style={styles.greeting}>
+              <View style={styles.greetingBeam}>
+                <BeamGlyph size={30} color={colors.textInverse} />
+              </View>
+              <Text variant="title" align="center">
+                What can I help with?
+              </Text>
+              <Text variant="callout" color="textSecondary" align="center">
+                Ask about your wallet, check a message, or pay someone on Arc. Nothing moves without your fingerprint.
+              </Text>
+            </View>
           ) : null}
           {turns.map((turn) => {
             if (turn.kind === 'user') return <MessageBubble key={turn.id} role="user" text={turn.text} />;
@@ -455,39 +473,56 @@ export function AskSheet({ ctxId, review, page = false }: { ctxId: string | unde
           {busy ? <TypingIndicator /> : null}
         </ScrollView>
 
-        <View style={styles.composer}>
+        {empty && page ? chips : null}
+        <View
+          style={page ? [styles.pageComposer, { marginBottom: Math.max(insets.bottom, space.xxl) + space.md }] : styles.composer}
+        >
+          {page ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Paste from clipboard"
+              onPress={() => void readClipboard()}
+              style={({ pressed }) => [styles.send, styles.micPage, pressed && styles.micPressed]}
+            >
+              <Icon name="plus" size={22} color={colors.text} />
+            </Pressable>
+          ) : null}
           <TextInput
+            ref={inputRef}
             value={input}
             onChangeText={setInput}
-            placeholder="Ask or say “pay this”"
+            placeholder={page ? 'Ask Beam' : 'Ask or say “pay this”'}
             placeholderTextColor={colors.textTertiary}
             maxLength={MAX_INPUT_CHARS}
             returnKeyType="send"
             onSubmitEditing={() => void send(input)}
             accessibilityLabel="Message to Beam"
-            style={styles.input}
+            multiline={page}
+            style={page ? styles.pageInput : styles.input}
           />
-          {BubbleOverlay ? (
+          {!input.trim() && BubbleOverlay ? (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Speak"
+              accessibilityLabel="Speak instead of typing"
+              accessibilityState={{ disabled: busy }}
               disabled={busy}
               onPress={() => void listenToInput()}
-              style={({ pressed }) => [styles.mic, pressed && styles.micPressed]}
+              style={({ pressed }) => [styles.send, page ? styles.micPage : styles.mic, pressed && styles.micPressed]}
             >
-              <Icon name="mic" size={20} color={colors.textSecondary} />
+              <Icon name="mic" size={20} color={colors.text} />
             </Pressable>
-          ) : null}
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Send"
-            accessibilityState={{ disabled: !canSend, busy }}
-            disabled={!canSend}
-            onPress={() => void send(input)}
-            style={({ pressed }) => [styles.send, pressed && styles.sendPressed, !canSend && styles.sendDisabled]}
-          >
-            <Icon name="arrow-up" size={20} color={colors.textInverse} />
-          </Pressable>
+          ) : (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Send"
+              accessibilityState={{ disabled: !canSend, busy }}
+              disabled={!canSend}
+              onPress={() => void send(input)}
+              style={({ pressed }) => [styles.send, pressed && styles.sendPressed, !canSend && styles.sendDisabled]}
+            >
+              <Icon name="arrow-up" size={20} color={canSend ? colors.textInverse : colors.textSecondary} />
+            </Pressable>
+          )}
         </View>
       </>
     );
@@ -495,18 +530,40 @@ export function AskSheet({ ctxId, review, page = false }: { ctxId: string | unde
 
   if (page) {
     return (
-      <View style={styles.pageRoot}>
-        <KeyboardAvoidingView behavior="padding" style={styles.flex}>
-          <View style={[styles.pageHeader, { paddingTop: insets.top + space.md }]}>
-            <BrandMark size={28} />
+      <KeyboardAvoidingView behavior="padding" style={[styles.page, { paddingTop: insets.top + space.xs }]}>
+        <View style={styles.pageHeader}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Back to wallet"
+            onPress={() => router.navigate('/')}
+            style={({ pressed }) => [styles.headerButton, pressed && styles.closePressed]}
+          >
+            <Icon name="chevron-left" size={24} color={colors.text} />
+          </Pressable>
+          <View style={styles.pageTitle}>
+            <BrandMark size={24} />
             <Text variant="headline" accessibilityRole="header">
               Beam
             </Text>
-            <NetworkPill />
           </View>
-          {body}
-        </KeyboardAvoidingView>
-      </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="New chat"
+            disabled={busy || turns.length === 0}
+            onPress={() => {
+              abortRef.current?.abort();
+              stopSpeaking();
+              setTurns([]);
+              setInput('');
+              setContext({ kind: 'unavailable', accessibilityOn: true });
+            }}
+            style={({ pressed }) => [styles.headerButton, pressed && styles.closePressed, turns.length === 0 && styles.headerButtonIdle]}
+          >
+            <Icon name="edit" size={22} color={colors.text} />
+          </Pressable>
+        </View>
+        {body}
+      </KeyboardAvoidingView>
     );
   }
 
@@ -555,8 +612,38 @@ export function AskSheet({ ctxId, review, page = false }: { ctxId: string | unde
 const styles = StyleSheet.create({
   root: { flex: 1 },
   scrim: { backgroundColor: colors.scrim },
-  pageRoot: { flex: 1, backgroundColor: colors.canvas },
-  pageHeader: { flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: space.lg, paddingBottom: space.sm },
+  page: { flex: 1, backgroundColor: colors.canvas },
+  pageHeader: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: space.sm, paddingBottom: space.sm },
+  pageTitle: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: space.sm },
+  headerButton: { width: HIT, height: HIT, alignItems: 'center', justifyContent: 'center', borderRadius: radius.pill },
+  headerButtonIdle: { opacity: 0.35 },
+  scrollPage: { flexGrow: 1, flexShrink: 1 },
+  pageEmpty: { flexGrow: 1, justifyContent: 'center' },
+  greeting: { alignItems: 'center', gap: space.md, paddingHorizontal: space.lg },
+  greetingBeam: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: space.sm,
+  },
+  quickScrollPage: { marginHorizontal: 0, marginBottom: space.md },
+  pageComposer: { flexDirection: 'row', alignItems: 'flex-end', gap: space.sm, paddingHorizontal: space.lg },
+  pageInput: {
+    ...typeScale.body,
+    flex: 1,
+    minHeight: HIT,
+    maxHeight: 140,
+    paddingHorizontal: space.lg,
+    paddingTop: space.md,
+    paddingBottom: space.md,
+    borderRadius: radius.xl,
+    backgroundColor: colors.surfaceMuted,
+    color: colors.text,
+  },
+  micPage: { backgroundColor: colors.surfaceMuted },
   kav: { flex: 1, justifyContent: 'flex-end' },
   sheet: {
     flexShrink: 1,
