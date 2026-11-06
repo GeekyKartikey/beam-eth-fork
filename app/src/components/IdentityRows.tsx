@@ -17,7 +17,7 @@ import { WORLD_OFF } from '../validateIntent';
 import { ApprovalSheet } from './ApprovalSheet';
 import { EnsMark, WorldMark } from './logos';
 import { Sheet } from './Sheet';
-import { Button, ListRow, Pill, Text } from './ui';
+import { Button, ListRow, Text } from './ui';
 import { useCopy } from './useCopy';
 
 const UNREACHABLE = "Couldn't reach the Beam server.";
@@ -80,7 +80,7 @@ export function WorldIdRow({ address, account, accountError, server, onLinked, d
 
   const canLink = !!address && !!account && !account.linked && world !== 'off' && world !== null && !call.sending;
   let trailing: ReactNode = null;
-  if (account?.linked) trailing = <Pill label="Linked" tone="success" dot />;
+  if (account?.linked) trailing = <Icon name="check-circle" size={22} color={colors.success} />;
   else if (call.sending) trailing = <ActivityIndicator color={colors.primary} />;
   else if (canLink) trailing = <Button size="sm" label="Link" onPress={() => setApproving(true)} />;
 
