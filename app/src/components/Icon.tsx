@@ -66,6 +66,7 @@ import X from 'phosphor-react-native/lib/module/icons/X';
 import XCircle from 'phosphor-react-native/lib/module/icons/XCircle';
 import Circle from 'phosphor-react-native/lib/module/icons/Circle';
 import Camera from 'phosphor-react-native/lib/module/icons/Camera';
+import SmileySad from 'phosphor-react-native/lib/module/icons/SmileySad';
 import FileText from 'phosphor-react-native/lib/module/icons/FileText';
 import GridFour from 'phosphor-react-native/lib/module/icons/GridFour';
 import ListBullets from 'phosphor-react-native/lib/module/icons/ListBullets';
@@ -76,6 +77,7 @@ const ICONS = {
   circle: Circle,
   'file-text': FileText,
   camera: Camera,
+  'smiley-sad': SmileySad,
   grid: GridFour,
   list: ListBullets,
   tool: Wrench,
